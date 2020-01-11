@@ -24,12 +24,18 @@
     <ClCompile Include="tyfirc-controllers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tyfirc-msgpack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tyfirc-controllers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tyfirc-irclient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tyfirc-msgpack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

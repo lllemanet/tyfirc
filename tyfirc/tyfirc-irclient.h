@@ -11,14 +11,9 @@
 
 namespace tyfirc {
 
-using service_sptr = std::shared_ptr<boost::asio::io_service>;
-using ssl_context_sptr = std::shared_ptr<boost::asio::ssl::context>;
-using ssl_socket_sptr = std::shared_ptr<boost::asio::ssl::stream<
-	boost::asio::ip::tcp::socket>>;
-
-using LoginControllerSptr = std::shared_ptr<LoginController>;
-using WriteControllerSptr = std::shared_ptr<LoginController>;
-using ReadControllerSptr = std::shared_ptr<LoginController>;
+using LinkageControllerSptr = std::shared_ptr<LinkageController>;
+using WriteControllerSptr = std::shared_ptr<WriteController>;
+using ReadControllerSptr = std::shared_ptr<ReadController>;
 
 // Used to setup controllers. Create and inject into controllers connection
 // obect, io_service etc.
@@ -40,11 +35,11 @@ class IrcClient {
 	}
 
  private:
-	service_sptr service_;
+	io_service_sptr service_;
 	ssl_context_sptr ctx_;
 	ssl_socket_sptr socket_;
 
-	LoginControllerSptr login_controller_;
+	LinkageControllerSptr linkage_controller_;
 	ReadControllerSptr read_controller_;
 	WriteControllerSptr write_controller_;
 };

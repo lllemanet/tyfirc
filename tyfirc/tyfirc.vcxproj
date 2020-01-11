@@ -129,11 +129,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="tyfirc-msgpack.cpp" />
     <ClCompile Include="tyfirc-controllers.cpp" />
     <ClCompile Include="tyfirc-ircclient.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="tyfirc-msgpack.h" />
     <ClInclude Include="tyfirc-controllers.h" />
     <ClInclude Include="tyfirc-irclient.h" />
   </ItemGroup>
