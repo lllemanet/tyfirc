@@ -18,13 +18,16 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tyfirc-ircclient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tyfirc-controllers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tyfirc-msgpack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tyfirc-ircclientapp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tyfirc-chatsocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +35,13 @@
     <ClInclude Include="tyfirc-controllers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tyfirc-irclient.h">
+    <ClInclude Include="tyfirc-msgpack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tyfirc-msgpack.h">
+    <ClInclude Include="tyfirc-irclientapp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tyfirc-chatsocket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,18 +8,14 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/signals2.hpp>
+#include "tyfirc-chatsocket.h"
 #include "tyfirc-msgpack.h"
 
 namespace tyfirc {
-
-using io_service_sptr = std::shared_ptr<boost::asio::io_service>;
-using ssl_context_sptr = std::shared_ptr<boost::asio::ssl::context>;
-using ssl_socket_sptr = std::shared_ptr<boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>;
-
 // This controller responsible for establishing connection and logging in.
-class LinkageController {
+class ConnectionController {
  public:
-	 LinkageController(ssl_socket_sptr socket) : socket_{socket} {}
+	 ConnectionController(std::shared_ptr<ChatSocket> socket) : socket_{socket} {}
 
 	// Trying to establish safe connection to address::port. Returns true if
 	// successfully and false otherwise. Returns false if connection was 
@@ -35,19 +31,19 @@ class LinkageController {
 	// Connection must be established before call (otherwise false is returned).
 	bool Register(std::string username, std::string password);
  private:
-	ssl_socket_sptr socket_;	//this object is shared among all controllers
+	 std::shared_ptr<ChatSocket> socket_;	//this object is shared among all controllers
 };
 
 
 // Used to write messages to chat synchronously.
 class WriteController {
  public:
-	WriteController(ssl_socket_sptr socket) : socket_{ socket } {}
+	WriteController(std::shared_ptr<ChatSocket> socket) : socket_{ socket } {}
 
 	// Synchronoulsy writes message to chat if connection is established.
 	bool WriteMsg(std::string msg);
  private:
-	ssl_socket_sptr socket_;	//this object is shared among all controllers
+	 std::shared_ptr<ChatSocket> socket_;	//this object is shared among all controllers
 };
 
 
@@ -62,15 +58,14 @@ class ReadController {
 	using OnMsgPackArrive = boost::signals2::signal<void(MessagePack)>;
 
  public:
-	ReadController(ssl_socket_sptr socket, io_service_sptr service)
-		: socket_{socket}, service_{service} {}
+	ReadController(std::shared_ptr<ChatSocket> socket)
+		: socket_{socket} {}
 
 	//Run();
 
 	boost::signals2::connection DoOnMsgPackArrive(const OnMsgPackArrive& handler);
 
  private:
-	ssl_socket_sptr socket_;	//this object is shared among all controllers
-	io_service_sptr service_;
+	std::shared_ptr<ChatSocket> socket_;	//this object is shared among all controllers
 };
 }  // namespace tyfirc

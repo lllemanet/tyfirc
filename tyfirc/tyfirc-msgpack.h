@@ -2,7 +2,7 @@
 // This code is licensed under MIT license (see LICENSE.txt for details)
 
 //
-// Declares messages structs
+// Declaration of message structs.
 #pragma once
 
 #include <vector>
@@ -23,11 +23,6 @@ struct Message {
 	std::chrono::system_clock::time_point time;
 };
 
-// Lambda for comparing two msgs by date.
-// I could be static member BUT this solution is more concise.
-//auto comparator_by_date = [](const Message& msg1, const Message& msg2) { return msg1.time < msg2.time; };
-
-
 // Collection of message. 
 // Guarantees that messages are sorted in ascending order by date.
 //
@@ -39,11 +34,11 @@ class MessagePack {
  public:
 	// Ctors
 	MessagePack() {}
-	explicit MessagePack(std::vector<Message> msgs);
+	explicit MessagePack(std::vector<Message> data);
 
 	// Inserts argument message copies into this collection. 
 	// Sorted order is preserved.
-	void Insert(MessagePack msgs);
+	void Insert(MessagePack data);
 
 	// Deletes msg with specified index and returns its copy.
 	// Does nothing and returns default Message if index is invalid.
@@ -51,12 +46,12 @@ class MessagePack {
 
 	// Index must be in bound otherwise throws out_of_range exception.
 	const Message& operator[](int index) {
-		return msgs_[index];
+		return data_[index];
 	}
 
-	int size() const { return msgs_.size(); }
-	const std::vector<Message> msgs() const { return msgs_; }
+	int size() const { return data_.size(); }
+	const std::vector<Message> data() const { return data_; }
 private:
-	std::vector<Message> msgs_;
+	std::vector<Message> data_;
 };
 }  // namespace tyfirc

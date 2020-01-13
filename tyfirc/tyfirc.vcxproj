@@ -129,15 +129,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="tyfirc-chatsocket.cpp" />
     <ClCompile Include="tyfirc-msgpack.cpp" />
     <ClCompile Include="tyfirc-controllers.cpp" />
-    <ClCompile Include="tyfirc-ircclient.cpp" />
+    <ClCompile Include="tyfirc-ircclientapp.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="tyfirc-chatsocket.h" />
     <ClInclude Include="tyfirc-msgpack.h" />
     <ClInclude Include="tyfirc-controllers.h" />
-    <ClInclude Include="tyfirc-irclient.h" />
+    <ClInclude Include="tyfirc-irclientapp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

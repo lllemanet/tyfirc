@@ -6,18 +6,11 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include "tyfirc-irclient.h"
+#include "tyfirc-irclientapp.h"
 
 namespace tyfirc {
 
-IrcClient::IrcClient()
-		: service_{ std::make_shared<boost::asio::io_service>() },
-			ctx_(std::make_shared<boost::asio::ssl::context>
-					(boost::asio::ssl::context::sslv23)) {
-	ctx_->load_verify_file("server.crt");
-}
-
-bool IrcClient::Setup() {
+bool IrcClientApp::Setup() {
 	return true;
 }
 
