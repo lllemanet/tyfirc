@@ -8,6 +8,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include "tyfirc-chatsocket.h"
+#include "tyfirc-exceptions.h"
 
 namespace tyfirc {
 
@@ -15,10 +16,31 @@ bool ChatSocket::Connect(boost::asio::ip::address_v4 address, unsigned short por
 	if (is_connected_)
 		return false;
 
-	boost::asio::ip::tcp::endpoint ed{ address, port };
+	boost::asio::ip::tcp::endpoint endpoint{ address, port };
 	socket_.set_verify_mode(boost::asio::ssl::verify_peer);
 	socket_.set_verify_callback(
 			boost::bind(&ChatSocket::VerifyCertificate, this, _1, _2));
+	
+	try {
+		socket_.lowest_layer().connect(endpoint);
+		socket_.handshake(boost::asio::ssl::stream_base::client);
+	}
+	catch (std::exception& e) {
+		return false;
+	}
+
+	return true;
+}
+
+// Check if certificate is valid for the peer.
+bool ChatSocket::VerifyCertificate(bool preverified,
+		boost::asio::ssl::verify_context& ctx) {
+	return true;
+	// TODO
+}
+
+bool ChatSocket::Login(std::string username, std::string password) {
+
 }
 
 

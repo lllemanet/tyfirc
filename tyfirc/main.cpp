@@ -2,6 +2,7 @@
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
 #include "tyfirc-msgpack.h"
+#include "tyfirc-chatsocket.h"
 
 void HelloWorld() {
 	std::cout << "Hello world" << std::endl;
@@ -56,5 +57,14 @@ int main() {
 	MessagePack pack2(msgs2);
 	pack1.Insert(pack2);
 
-	
+
+	boost::asio::io_service service{};
+	boost::asio::ssl::context ctx{boost::asio::ssl::context::sslv23};
+	ctx.load_verify_file("server.crt");
+
+	ChatSocket sock{ service, ctx };
+	std::cout << sock.Connect(
+			boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
+			8001);
+
 }
