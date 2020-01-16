@@ -10,8 +10,12 @@
 
 namespace tyfirc {
 
+namespace client {
+
 bool IrcClientApp::Setup() {
 	return true;
 }
+
+}	 // namespace client
 
 }  // namespace tyfirc

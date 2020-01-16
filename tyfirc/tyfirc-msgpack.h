@@ -52,4 +52,5 @@ class MessagePack {
 private:
 	std::vector<Message> data_;
 };
+
 }  // namespace tyfirc

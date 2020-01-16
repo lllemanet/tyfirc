@@ -9,6 +9,7 @@
 #include "tyfirc-msgpack.h"
 
 namespace tyfirc {
+
 MessagePack::MessagePack(std::vector<Message> data) : data_(data) {
 	if (data_.size() > 1) {
 		auto comparator_by_date = [](Message& msg1, Message& msg2) { return msg1.time < msg2.time; };

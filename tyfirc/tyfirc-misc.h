@@ -10,10 +10,10 @@
 #include <vector>
 
 
+
 namespace tyfirc {
 
 namespace internal {
-
 std::vector<std::string> Split(const std::string& src, char delimeter) {
 	std::vector<std::string> tokens{};
 	std::istringstream token_stream{src};

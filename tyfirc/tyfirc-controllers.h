@@ -12,6 +12,9 @@
 #include "tyfirc-msgpack.h"
 
 namespace tyfirc {
+
+namespace client {
+
 // This controller responsible for establishing connection and logging in.
 class ConnectionController {
  public:
@@ -68,4 +71,7 @@ class ReadController {
  private:
 	std::shared_ptr<ChatSocket> socket_;	//this object is shared among all controllers
 };
+
+}	 // namespace client
+
 }  // namespace tyfirc

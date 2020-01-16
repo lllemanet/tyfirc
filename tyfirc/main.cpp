@@ -67,7 +67,6 @@ int main() {
 	std::cout << sock.Connect(
 			boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
 			8001);
-	sock.Login("username", "1234");
 
 	ScMessage msg{ ScMessageType::LOGIN };
 	msg.SetProperty("username", "name");

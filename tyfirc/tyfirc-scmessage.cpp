@@ -43,6 +43,8 @@ void ParseProperty(const std::string& line, std::string& property,
 
 namespace tyfirc {
 
+constexpr size_t sc_message_buff_size = 1024;
+
 std::string ScMessageTypeToStr(ScMessageType type) {
 	return sc_types_strings[static_cast<int>(type)];
 }

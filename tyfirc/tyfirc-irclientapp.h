@@ -12,6 +12,8 @@
 
 namespace tyfirc {
 
+namespace client {
+
 // Used to setup controllers. Create and inject into controllers connection
 // obect, io_service etc.
 //
@@ -57,4 +59,7 @@ public:
 
 	bool is_crt_loaded;
 };
+
+} //namespace client
+
 } //namespace tyfirc

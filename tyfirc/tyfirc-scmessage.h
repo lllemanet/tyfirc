@@ -62,4 +62,6 @@ class ScMessage {
 	std::map<std::string, std::string> properties_;
 };
 
+
+
 }	 // namespace tyfirc
