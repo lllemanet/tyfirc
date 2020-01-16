@@ -20,30 +20,22 @@ class ChatSocket {
 	// Ctor requirements same as for ssl_socket
 	ChatSocket(boost::asio::io_service& service,
 						 boost::asio::ssl::context& ctx)
-		: socket_{ service, ctx }, is_connected_{ false } {}
+		: socket_{ service, ctx } {}
 
 	// Trying to connect synchronously. Returns result of connection try.
-	// False if connected already.
 	bool Connect(boost::asio::ip::address_v4 address, unsigned short port);
 
-	// Synchronously tries to log in chat after connection is established.
-	// Returns false if no username/password are registered on server.
-	// Throws ConnectionFailException if connection is not established.
-	bool Login(std::string username, std::string password);
 
-	// Synchronously tries to register in and log in chat after connection 
-	// is established.
-	// Returns false if username/password are registered on server.
-	// Throws ConnectionFailException if connection is not established.
-	bool Register(std::string username, std::string password);
-
+	void SetLoggedIn(bool value) { is_logged_in_ = value; }
 	bool is_connected() { return is_connected_; }
+	bool is_logged_in() { return is_logged_in_; }
  private:
 	bool VerifyCertificate(bool preverified,
 			boost::asio::ssl::verify_context& ctx);
 
 	ssl_socket socket_;
 	bool is_connected_;
+	bool is_logged_in_;
 };
 
 }  // namespace tyfirc

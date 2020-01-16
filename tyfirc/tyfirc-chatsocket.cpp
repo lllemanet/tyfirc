@@ -25,6 +25,7 @@ bool ChatSocket::Connect(boost::asio::ip::address_v4 address, unsigned short por
 	try {
 		socket_.lowest_layer().connect(endpoint);
 		socket_.handshake(boost::asio::ssl::stream_base::client);
+		is_connected_ = true;
 	}
 	catch (std::exception& e) {
 		return false;
@@ -39,16 +40,5 @@ bool ChatSocket::VerifyCertificate(bool preverified,
 	// TODO
 	return true;
 }
-
-bool ChatSocket::Login(std::string username, std::string password) {
-	ScMessage login_msg{ ScMessageType::LOGIN };
-	login_msg.SetProperty("username", username);
-	login_msg.SetProperty("password", password);
-
-
-
-	return false;
-}
-
 
 }	 // namespace tyfirc
