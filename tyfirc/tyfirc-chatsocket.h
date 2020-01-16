@@ -13,7 +13,7 @@ using ssl_socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
 
 namespace tyfirc {
 
-// Behaves like simple ssl socket that require connection+logging in for
+// Behaves like simple ssl socket that require connection+authentication for
 // read/write.
 class ChatSocket {
  public:
@@ -41,7 +41,6 @@ class ChatSocket {
  private:
 	bool VerifyCertificate(bool preverified,
 			boost::asio::ssl::verify_context& ctx);
-
 
 	ssl_socket socket_;
 	bool is_connected_;

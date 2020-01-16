@@ -3,6 +3,7 @@
 #include <boost/signals2.hpp>
 #include "tyfirc-msgpack.h"
 #include "tyfirc-chatsocket.h"
+#include "tyfirc-scmessage.h"
 
 void HelloWorld() {
 	std::cout << "Hello world" << std::endl;
@@ -67,4 +68,16 @@ int main() {
 			boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
 			8001);
 
+	ScMessage msg{ ScMessageType::LOGIN };
+	msg.SetProperty("username", "name");
+	msg.SetProperty("password", "12345678");
+	std::cout << msg.ToString() << std::endl;
+
+	ScMessageType type1 = ScMessageTypeFromStr("LOGIN");
+	std::string stype1 = ScMessageTypeToStr(type1);
+
+	ScMessageType type2 = ScMessageTypeFromStr("djsakj");
+	std::string stype2 = ScMessageTypeToStr(type2);
+
+	ScMessage msg2{ScMessage::FromString("LOGIN\nusername: name\npassword: 12345678")};
 }

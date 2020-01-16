@@ -28,7 +28,7 @@ public:
 	// throwed.
 	//
 	// If ctx_ is not appropriate for safe connection, TODO error in 
-	// ChatSocket connect
+	// ChatSocket connect.
 	bool Setup();
 
 	// Must be set before Setup.

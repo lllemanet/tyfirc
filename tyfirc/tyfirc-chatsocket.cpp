@@ -8,6 +8,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include "tyfirc-chatsocket.h"
+#include "tyfirc-scmessage.h"
 #include "tyfirc-exceptions.h"
 
 namespace tyfirc {
@@ -35,12 +36,18 @@ bool ChatSocket::Connect(boost::asio::ip::address_v4 address, unsigned short por
 // Check if certificate is valid for the peer.
 bool ChatSocket::VerifyCertificate(bool preverified,
 		boost::asio::ssl::verify_context& ctx) {
-	return true;
 	// TODO
+	return true;
 }
 
 bool ChatSocket::Login(std::string username, std::string password) {
+	ScMessage login_msg{ ScMessageType::LOGIN };
+	login_msg.SetProperty("username", username);
+	login_msg.SetProperty("password", password);
 
+
+
+	return false;
 }
 
 

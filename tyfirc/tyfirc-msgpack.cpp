@@ -36,11 +36,12 @@ void MessagePack::Insert(MessagePack new_msgs) {
 
 	if (new_msgs.size() == 1) {
 		auto new_msg = new_msgs[0];
-		auto next_msg = std::find_if(data_.cbegin(), data_.cend(),
+		auto next_msg_iter = std::find_if(data_.cbegin(), data_.cend(),
 				[new_msg](const Message& cur) { return new_msg.time < cur.time; });
-		data_.insert(next_msg, new_msg);
+		data_.insert(next_msg_iter, new_msg);
 	}
 	else {
+		// Don't merge if new_msgs pack is before or after messages in this object.
 		// TODO better to create BeginTime and EndTime methods
 		auto msgs_begin_time = data_.begin()->time;
 		auto msgs_end_time = (data_.end() - 1)->time;

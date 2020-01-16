@@ -27,12 +27,10 @@ struct Message {
 // Guarantees that messages are sorted in ascending order by date.
 //
 // We don't use priority queue because we often need to access all 
-// elements by order.
-//
-// We don't provide iterators because we're lazy for the moment.
+// elements sequentially.
+// Iterators will be made in never release.
 class MessagePack {
  public:
-	// Ctors
 	MessagePack() {}
 	explicit MessagePack(std::vector<Message> data);
 
