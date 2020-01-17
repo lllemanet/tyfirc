@@ -16,7 +16,9 @@ namespace client {
 
 bool ConnectionController::Connect(boost::asio::ip::address_v4 address,
 		unsigned short port) {
-	return socket_->Connect(address, port);
+	bool res = socket_->Connect(address, port);
+	// Signal
+	return res;
 }
 
 

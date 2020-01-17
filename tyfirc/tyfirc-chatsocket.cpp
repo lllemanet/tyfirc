@@ -42,6 +42,11 @@ size_t ChatSocket::Write(const boost::asio::const_buffer& buff) {
 	return boost::asio::write(socket_, buff);
 }
 
+void ChatSocket::AsyncRead(boost::asio::mutable_buffer buf, 
+		void(*handler)(boost::system::error_code, std::size_t)) {
+	boost::asio::async_read(socket_, buf, handler);
+}
+
 // Check if certificate is valid for the peer.
 bool ChatSocket::VerifyCertificate(bool preverified,
 		boost::asio::ssl::verify_context& ctx) {

@@ -29,6 +29,12 @@ class ChatSocket {
 	// Tries to write synchronously. Throw ConnectionFailException if not 
 	// connected. Returns written length.
 	size_t Write(const boost::asio::const_buffer& buff);
+	//TODO WriteAsync
+
+	//TODO Read
+	void AsyncRead(boost::asio::mutable_buffer buf,
+			void (*handler)(boost::system::error_code, std::size_t));
+
 
 
 	void SetLoggedIn(bool value) { is_logged_in_ = value; }

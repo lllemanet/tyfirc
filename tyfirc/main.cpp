@@ -15,6 +15,8 @@ void HelloWorld() {
 #include <ctime>
 #include <iomanip>
 
+char buffer[512];
+
 std::string GetCurTime(std::string format) {
 
 	std::time_t now = std::chrono::system_clock::to_time_t(
@@ -27,7 +29,10 @@ std::string GetCurTime(std::string format) {
 	return res;
 }
 
-
+void OnRead(boost::system::error_code error, size_t bytes_transferred) {
+	buffer[bytes_transferred] = '\0';
+	std::cout << "\nOnRead: " << buffer << '\n';
+}
 
 int main() {
 	std::string date_format = "%d.%m.%Y %H:%M:%S";
@@ -71,7 +76,10 @@ int main() {
 	std::cout << con_controller.Connect(
 		boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
 		8001) << std::endl;
+	//sock->AsyncRead(boost::asio::buffer(buffer, 512), &OnRead);
 	std::cout << con_controller.Login("username", "12345678") << std::endl;
+	sock->AsyncRead(boost::asio::buffer(buffer, 512), &OnRead);
+	service.run();
 
 	ScMessage msg{ ScMessageType::LOGIN };
 	msg.SetProperty("username", "name");

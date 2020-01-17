@@ -21,6 +21,7 @@ enum class ScMessageType {
 	END  // not message type
 };
 
+constexpr short sc_types_size = static_cast<short>(tyfirc::ScMessageType::END);
 std::string ScMessageTypeToStr(ScMessageType type);
 ScMessageType ScMessageTypeFromStr(const std::string& msg);
 

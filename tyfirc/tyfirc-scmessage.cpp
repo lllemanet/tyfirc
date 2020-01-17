@@ -23,8 +23,6 @@ std::string sc_types_strings[] = {
 			"END"
 };
 
-short sc_types_size = static_cast<int>(tyfirc::ScMessageType::END);
-
 // Expects line to be in form '<property>: <value>'. Invalid argument
 // exception is thrown otherwise. 
 void ParseProperty(const std::string& line, std::string& property,
