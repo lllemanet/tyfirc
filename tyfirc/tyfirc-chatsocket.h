@@ -6,6 +6,7 @@
 #pragma once
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/asio/buffer.hpp>
 
 namespace {
 using ssl_socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
@@ -25,6 +26,10 @@ class ChatSocket {
 	// Trying to connect synchronously. Returns result of connection try.
 	bool Connect(boost::asio::ip::address_v4 address, unsigned short port);
 
+	// Tries to write synchronously. Throw ConnectionFailException if not 
+	// connected. Returns written length.
+	size_t Write(const boost::asio::const_buffer& buff);
+
 
 	void SetLoggedIn(bool value) { is_logged_in_ = value; }
 	bool is_connected() { return is_connected_; }
@@ -34,8 +39,8 @@ class ChatSocket {
 			boost::asio::ssl::verify_context& ctx);
 
 	ssl_socket socket_;
-	bool is_connected_;
-	bool is_logged_in_;
+	bool is_connected_ = false;
+	bool is_logged_in_ = false;
 };
 
 }  // namespace tyfirc

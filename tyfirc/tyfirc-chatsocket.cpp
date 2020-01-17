@@ -5,6 +5,7 @@
 // Definition of ChatSocket.
 
 
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include "tyfirc-chatsocket.h"
@@ -32,6 +33,13 @@ bool ChatSocket::Connect(boost::asio::ip::address_v4 address, unsigned short por
 	}
 
 	return true;
+}
+
+
+size_t ChatSocket::Write(const boost::asio::const_buffer& buff) {
+	if (!is_connected_)
+		throw ConnectionFailException();
+	return boost::asio::write(socket_, buff);
 }
 
 // Check if certificate is valid for the peer.

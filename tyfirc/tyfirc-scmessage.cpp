@@ -61,7 +61,7 @@ ScMessageType ScMessageTypeFromStr(const std::string& msg) {
 }
 
 
-ScMessage::operator std::string() {
+std::string ScMessage::ToString() {
 	std::string res = ScMessageTypeToStr(msg_type_) + "\n";
 	for (auto& a : properties_) {
 		res += a.first + ": " + a.second + "\n";
@@ -91,5 +91,19 @@ ScMessage ScMessage::FromString(const std::string& sc_msg) {
 
 	return res_msg;
 }
+
+namespace client {
+
+ScMessage AuthScMessage(ScMessageType type, std::string username,
+		std::string password) {
+	if (type != ScMessageType::LOGIN && type != ScMessageType::REGISTER)
+		throw std::invalid_argument("Auth type must be LOGIN or REGISTER");
+	ScMessage res{ type };
+	res.SetProperty("username", username);
+	res.SetProperty("password", password);
+	return res;
+}
+
+}  // namespace client
 
 }	 // namespace tyfirc

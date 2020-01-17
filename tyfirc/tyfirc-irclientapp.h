@@ -57,9 +57,8 @@ public:
 	std::shared_ptr<ReadController> read_controller_;
 	std::shared_ptr<WriteController> write_controller_;
 
-	bool is_crt_loaded;
+	bool is_crt_loaded; // TODO?
 };
 
 } //namespace client
-
 } //namespace tyfirc

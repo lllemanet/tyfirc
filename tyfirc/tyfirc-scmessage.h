@@ -4,6 +4,7 @@
 //
 // Declaration of server-client message class.
 #pragma once
+#include <string>
 #include <map>
 
 namespace tyfirc {
@@ -30,10 +31,13 @@ ScMessageType ScMessageTypeFromStr(const std::string& msg);
 // REGISTER). Then you can specify any number of property-value pairs each
 // on distinct line in next form:
 // <property>: <value>
+// And finish message with '\0' symbol.
 // Only first colon separate property from value, so you can use colons in your
 // value.
 // Property names shouldn't repeat.
 // ScMessageType enum comments describe mandatory properties for each msg type.
+// Format could be changed by inheriting this class, overloading ToString and 
+// specifying your FromString implementation.
 //
 // Example of message for logging in:
 //
@@ -46,21 +50,35 @@ class ScMessage {
  public:
 	ScMessage(ScMessageType type = ScMessageType::LOGIN) : msg_type_{type} {}
 
-	// Creates ScMessage from string. Throws invalid_argument exception if
-	// string is invalid.
-	static ScMessage FromString(const std::string&);
-	
-	explicit operator std::string();
+	virtual std::string ToString();
+	static ScMessage FromString(const std::string& sc_msg);
 
+	// (Can throw)
+	std::string GetProperty(std::string prop) { return properties_.at(prop); }
 	void SetProperty(std::string property, std::string value) { 
 		properties_[property] = value;
 	}
-	void SetType(ScMessageType type) {	msg_type_ = type;	}
 
+	ScMessageType GetType() { return msg_type_; }
+	void SetType(ScMessageType type) {	msg_type_ = type;	}
  private:
 	ScMessageType msg_type_;
 	std::map<std::string, std::string> properties_;
 };
+
+
+namespace client {
+// Utilities.
+
+// Type must be LOGIN or REGISTER. Otherwise invalid_argument exception is 
+// thrown.
+ScMessage AuthScMessage(ScMessageType type, std::string username,
+	std::string password);
+
+
+}  // namespace client
+
+// TODO: Abstract object for formatting ScMessage.
 
 
 

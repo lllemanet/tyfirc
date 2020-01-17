@@ -23,14 +23,14 @@ bool ConnectionController::Connect(boost::asio::ip::address_v4 address,
 bool ConnectionController::Login(std::string username, std::string password) {
 	if (!socket_->is_connected())
 		throw ConnectionFailException();
-	ScMessage login_msg{ ScMessageType::LOGIN };
-	login_msg.SetProperty("username", username);
-	login_msg.SetProperty("password", password);
+	
 
-	std::string str = static_cast<std::string>(login_msg);
-	//socket_.Write()
+	std::string str = AuthScMessage(ScMessageType::LOGIN, username, password).
+			ToString();
+	size_t read_len = socket_->Write(
+			boost::asio::buffer(str.c_str(), str.size() + 1));
 	//boost::asio::write(*socket_,	boost::asio::buffer(str.c_str(), str.size()));
-
+	return true;
 }
 
 }	 // namespace client

@@ -4,6 +4,7 @@
 #include "tyfirc-msgpack.h"
 #include "tyfirc-chatsocket.h"
 #include "tyfirc-scmessage.h"
+#include "tyfirc-controllers.h"
 
 void HelloWorld() {
 	std::cout << "Hello world" << std::endl;
@@ -63,15 +64,19 @@ int main() {
 	boost::asio::ssl::context ctx{boost::asio::ssl::context::sslv23};
 	ctx.load_verify_file("server.crt");
 
-	ChatSocket sock{ service, ctx };
-	std::cout << sock.Connect(
-			boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
-			8001);
+	std::shared_ptr<ChatSocket> sock =
+			std::make_shared<ChatSocket>(service, ctx);
+
+	client::ConnectionController con_controller(sock);
+	std::cout << con_controller.Connect(
+		boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
+		8001) << std::endl;
+	std::cout << con_controller.Login("username", "12345678") << std::endl;
 
 	ScMessage msg{ ScMessageType::LOGIN };
 	msg.SetProperty("username", "name");
 	msg.SetProperty("password", "12345678");
-	std::cout << (std::string)msg << std::endl;
+	std::cout << msg.ToString() << std::endl;
 
 	ScMessageType type1 = ScMessageTypeFromStr("LOGIN");
 	std::string stype1 = ScMessageTypeToStr(type1);
