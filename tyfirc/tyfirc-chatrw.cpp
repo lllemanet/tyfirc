@@ -34,29 +34,6 @@ bool ChatRw::Connect(boost::asio::ip::address_v4 address, unsigned short port){
 	return true;
 }
 
-typedef boost::asio::buffers_iterator<
-	boost::asio::const_buffers_1> iterator;
-class match_char
-{
-public:
-	explicit match_char(char c) : c_(c) {}
-
-	template <typename Iterator>
-	std::pair<Iterator, bool> operator()(
-		Iterator begin, Iterator end) const
-	{
-		Iterator i = begin;
-		while (i != end)
-			if (c_ == *i++)
-				return std::make_pair(i, true);
-		return std::make_pair(i, false);
-	}
-
-private:
-	char c_;
-};
-
-
 bool ChatRw::Login(std::string username, std::string password) {
 	return Auth(ScMessageType::LOGIN, username, password);
 }
@@ -78,18 +55,7 @@ bool ChatRw::Auth(ScMessageType type, std::string username, std::string password
 	boost::asio::write(socket_, boost::asio::buffer(scmsg.c_str(),
 		scmsg.size() + 1));
 	// Read. Expects LOGIN_SUCCESS. 
-	// TODO! ReadScMessage
-	size_t btransfed = boost::asio::read_until(socket_,
-		boost::asio::dynamic_buffer(write_buffer_), '\0');
-	write_buffer_[btransfed] = '\0';
-	// Get ScMessage
-	ScMessage res_scmsg;
-	try {
-		res_scmsg = ScMessage::FromString(write_buffer_).GetType();
-	}
-	catch (std::invalid_argument) {
-		return false;
-	}
+	ScMessage res_scmsg = ReadScMessage();
 
 	ScMessageType success_type = 
 			type == ScMessageType::LOGIN ? ScMessageType::LOGIN_SUCCESS :
@@ -107,7 +73,24 @@ void ChatRw::BindHandlerOnDiscard(void(*handler)(std::string)) {
 }
 
 void ChatRw::Run() {
+	//check if logged in	
+}
 
+ScMessage ChatRw::ReadScMessage()
+{
+	//todo should we throw?
+	/*if (!is_connected_)
+		throw ConnectionFailException();*/
+	boost::asio::read_until(socket_,
+			boost::asio::dynamic_buffer(write_buffer_), '\0');
+	ScMessage res;
+	try {
+		res = ScMessage::FromString(write_buffer_);
+	}
+	catch (std::invalid_argument) {
+		res.SetType(ScMessageType::END);
+	}
+	return ScMessage();
 }
 
 bool ChatRw::VerifyCertificate(bool preverified, boost::asio::ssl::verify_context & ctx)

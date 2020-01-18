@@ -38,8 +38,8 @@ class ChatRw {
 	// Trying to login to chat synchronously. Returns true if username-password
 	// was registered, false otherwise. 
 	// Connection must be established before call (otherwise 
-	// ConnectionFailExceptionis thrown). May throw on unsuccessful calls to
-	// socket write methods.
+	// ConnectionFailExceptionis thrown). 
+	// Throw boost::exception::system-error on asio write and read_until failure.
 	bool Login(std::string username, std::string password);
 
 	// Rules are similar to Login but return true if username-password wasn't
@@ -53,9 +53,10 @@ class ChatRw {
 	// Bind handler if message from socket is invalid.
 	void BindHandlerOnDiscard(void(*handler)(std::string));
 
-	// Starts reading from ChatSocket and invoke handlers after message from 
-	// socket is read. If message is invalid discard it.
-	// Blocks thread.
+	// Starts reading from socket and invoke corresponding handlers after 
+	// message from socket is read. If message is invalid discard it and invoke
+	// handler for discarded message.
+	// Blocks thread (So better to execute on distinct thread).
 	// If any error happens returns(connection lost/not established etc).
 	void Run();
 
@@ -65,11 +66,18 @@ class ChatRw {
 	ChatRw(ChatRw&&) = default;
 	ChatRw& operator=(ChatRw&&) = default;
  private:
+	// Synchronously read message from socket.
+	// If format is not preserved return ScMessage with type END
+	// boost::system::system_error thrown on error.
+	// We assume server use '\0'-terminating symbol to end message.
+	ScMessage ReadScMessage();
+
 	bool VerifyCertificate(bool preverified,
 			boost::asio::ssl::verify_context& ctx);
 
 	// Helper for Login and Register
 	bool Auth(ScMessageType type, std::string username, std::string password);
+
 
 	using ssl_socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
 
@@ -79,7 +87,8 @@ class ChatRw {
 	std::array<boost::signals2::signal<void(ScMessage)>, sc_types_size> read_signals_;
 	boost::signals2::signal<void(std::string)> discard_signal_;
 	// std::string is used since read_until requires dynamic_buffer
-	std::string write_buffer_;	
+	// contains current read message
+	std::string write_buffer_;
 
 	bool is_connected_ = false;
 	bool is_logged_in_ = false;
