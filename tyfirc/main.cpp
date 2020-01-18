@@ -16,6 +16,8 @@ void HelloWorld() {
 #include <iomanip>
 
 char buffer[512];
+std::shared_ptr<tyfirc::ChatSocket> sock;
+boost::asio::ssl::stream<boost::asio::ip::tcp::socket>* socket_;
 
 std::string GetCurTime(std::string format) {
 
@@ -33,6 +35,13 @@ void OnRead(boost::system::error_code error, size_t bytes_transferred) {
 	buffer[bytes_transferred] = '\0';
 	std::cout << "\nOnRead: " << buffer << '\n';
 }
+
+void OnWrite(boost::system::error_code error, size_t bytes_transferred) {
+	std::cout << "OnWrite" << std::endl;
+	//sock->AsyncRead(boost::asio::buffer(buffer, 512), &OnRead);
+	socket_->async_read_some(boost::asio::buffer(buffer, 512), &OnRead);
+}
+
 
 int main() {
 	std::string date_format = "%d.%m.%Y %H:%M:%S";
@@ -69,18 +78,20 @@ int main() {
 	boost::asio::ssl::context ctx{boost::asio::ssl::context::sslv23};
 	ctx.load_verify_file("server.crt");
 
-	std::shared_ptr<ChatSocket> sock =
-			std::make_shared<ChatSocket>(service, ctx);
+	sock = std::make_shared<ChatSocket>(service, ctx);
 
 	client::ConnectionController con_controller(sock);
 	std::cout << con_controller.Connect(
 		boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
 		8001) << std::endl;
-	//sock->AsyncRead(boost::asio::buffer(buffer, 512), &OnRead);
+	sock->AsyncReadSome(boost::asio::buffer(buffer, 512), &OnRead);
 	std::cout << con_controller.Login("username", "12345678") << std::endl;
-	sock->AsyncRead(boost::asio::buffer(buffer, 512), &OnRead);
+	//sock->AsyncWrite(boost::asio::buffer("some", 5), &OnWrite);
+	//boost::asio::async_read(*socket_, boost::asio::buffer(buffer, 512), &OnRead);
+	//boost::asio::async_write(*socket_, boost::asio::buffer("some", 5), &OnWrite);
+	
 	service.run();
-
+/*
 	ScMessage msg{ ScMessageType::LOGIN };
 	msg.SetProperty("username", "name");
 	msg.SetProperty("password", "12345678");
@@ -92,5 +103,5 @@ int main() {
 	ScMessageType type2 = ScMessageTypeFromStr("djsakj");
 	std::string stype2 = ScMessageTypeToStr(type2);
 
-	ScMessage msg2{ScMessage::FromString("LOGIN\nusername: name\npassword: 12345678")};
+	ScMessage msg2{ScMessage::FromString("LOGIN\nusername: name\npassword: 12345678")};*/
 }

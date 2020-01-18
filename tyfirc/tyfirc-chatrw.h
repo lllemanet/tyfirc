@@ -15,27 +15,27 @@ namespace tyfirc {
 
 namespace client {
 
-// This class is used to read ScMessage's from server. You can bind handler
-// on each message type. 
+// This class is used to read/write ScMessages from/to server. You can bind handler
+// on each arriving message type.
 // Class's method Run() blocks thread and invoke asio io_service run method
 // so it requires distinct thread.
-class ChatReader {
+class ChatRw {
  public:
-	ChatReader(std::shared_ptr<boost::asio::io_service> service, 
+	ChatRw(std::shared_ptr<boost::asio::io_service> service, 
 						 std::shared_ptr<ChatSocket> socket) 
 			: service_{service}, socket_{socket} {}
 
-	// Connects handler with specified type. Handler is invoked just after
+	// Bind handler with specified type. Handler is invoked just after
 	// ScMessage with this type was read from ChatSocket.
-	void ConnectHandler(ScMessageType type, void(*handler)(ScMessage));
+	void BindHandler(ScMessageType type, void(*handler)(ScMessage));
 
-	// Connect handler if message from socket is invalid.
-	void ConnectHandlerOnDiscard(void(*handler)(std::string));
+	// Bind handler if message from socket is invalid.
+	void BindHandlerOnDiscard(void(*handler)(std::string));
 
 	// Starts reading from ChatSocket and invoke handlers after message from 
 	// socket is read. If message is invalid discard it.
-	// Blocks thread. Throws ConnectionFailException if connection is not 
-	// established. 
+	// Blocks thread.
+	// If any error happens returns(connection lost/not established etc).
 	void Run();
  private:
 	std::shared_ptr<boost::asio::io_service> service_;

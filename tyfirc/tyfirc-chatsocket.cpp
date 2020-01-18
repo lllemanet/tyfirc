@@ -42,9 +42,14 @@ size_t ChatSocket::Write(const boost::asio::const_buffer& buff) {
 	return boost::asio::write(socket_, buff);
 }
 
-void ChatSocket::AsyncRead(boost::asio::mutable_buffer buf, 
+void ChatSocket::AsyncWrite(const boost::asio::const_buffer & buff,
 		void(*handler)(boost::system::error_code, std::size_t)) {
-	boost::asio::async_read(socket_, buf, handler);
+	boost::asio::async_write(socket_, buff, handler);
+}
+
+void ChatSocket::AsyncReadSome(boost::asio::mutable_buffer buff,
+		void(*handler)(boost::system::error_code, std::size_t)) {
+	socket_.async_read_some(buff, handler);
 }
 
 // Check if certificate is valid for the peer.

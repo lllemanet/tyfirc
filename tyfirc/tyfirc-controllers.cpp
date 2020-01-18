@@ -30,7 +30,7 @@ bool ConnectionController::Login(std::string username, std::string password) {
 	std::string str = AuthScMessage(ScMessageType::LOGIN, username, password).
 			ToString();
 	size_t read_len = socket_->Write(
-			boost::asio::buffer(str.c_str(), str.size() + 1));
+		boost::asio::buffer(str.c_str(), str.size() + 1));
 	//boost::asio::write(*socket_,	boost::asio::buffer(str.c_str(), str.size()));
 	return true;
 }
