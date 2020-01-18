@@ -129,8 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="tyfirc-chatreader.cpp" />
-    <ClCompile Include="tyfirc-chatsocket.cpp" />
+    <ClCompile Include="tyfirc-chatrw.cpp" />
     <ClCompile Include="tyfirc-msgpack.cpp" />
     <ClCompile Include="tyfirc-controllers.cpp" />
     <ClCompile Include="tyfirc-ircclientapp.cpp" />
@@ -138,8 +137,7 @@
     <ClCompile Include="tyfirc-scmessage.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tyfirc-chatreader.h" />
-    <ClInclude Include="tyfirc-chatsocket.h" />
+    <ClInclude Include="tyfirc-chatrw.h" />
     <ClInclude Include="tyfirc-exceptions.h" />
     <ClInclude Include="tyfirc-misc.h" />
     <ClInclude Include="tyfirc-msgpack.h" />

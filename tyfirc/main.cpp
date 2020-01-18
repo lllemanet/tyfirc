@@ -2,9 +2,9 @@
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
 #include "tyfirc-msgpack.h"
-#include "tyfirc-chatsocket.h"
 #include "tyfirc-scmessage.h"
 #include "tyfirc-controllers.h"
+#include "tyfirc-chatrw.h"
 
 void HelloWorld() {
 	std::cout << "Hello world" << std::endl;
@@ -16,7 +16,6 @@ void HelloWorld() {
 #include <iomanip>
 
 char buffer[512];
-std::shared_ptr<tyfirc::ChatSocket> sock;
 boost::asio::ssl::stream<boost::asio::ip::tcp::socket>* socket_;
 
 std::string GetCurTime(std::string format) {
@@ -74,21 +73,28 @@ int main() {
 	pack1.Insert(pack2);
 
 
-	boost::asio::io_service service{};
-	boost::asio::ssl::context ctx{boost::asio::ssl::context::sslv23};
-	ctx.load_verify_file("server.crt");
 
-	sock = std::make_shared<ChatSocket>(service, ctx);
+	/*sock = std::make_shared<ChatSocket>(service, ctx);
+
 
 	client::ConnectionController con_controller(sock);
 	std::cout << con_controller.Connect(
 		boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
 		8001) << std::endl;
 	sock->AsyncReadSome(boost::asio::buffer(buffer, 512), &OnRead);
-	std::cout << con_controller.Login("username", "12345678") << std::endl;
+	std::cout << con_controller.Login("username", "12345678") << std::endl;*/
 	//sock->AsyncWrite(boost::asio::buffer("some", 5), &OnWrite);
 	//boost::asio::async_read(*socket_, boost::asio::buffer(buffer, 512), &OnRead);
 	//boost::asio::async_write(*socket_, boost::asio::buffer("some", 5), &OnWrite);
+	boost::asio::io_service service{};
+	boost::asio::ssl::context ctx{boost::asio::ssl::context::sslv23};
+	ctx.load_verify_file("server.crt");
+
+	client::ChatRw chatRw{ service, ctx };
+	std::cout << chatRw.Connect(
+		boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
+		8001) << std::endl; 
+
 	
 	service.run();
 /*

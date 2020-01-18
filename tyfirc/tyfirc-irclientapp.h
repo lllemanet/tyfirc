@@ -18,7 +18,7 @@ namespace client {
 // object, io_service etc.
 //
 // Also used to access created controllers.
-// Can be moved but cannot be copied.
+// Can be only moved.
 class IrcClientApp {
 
 public:
@@ -52,7 +52,7 @@ public:
  private:
 	std::shared_ptr<boost::asio::io_service> service_;
 	std::shared_ptr<boost::asio::ssl::context> ctx_;	// Must be set before Setup.
-	std::shared_ptr<ChatRw> socket_;
+	std::shared_ptr<ChatRw> chat_rw_;
 	std::shared_ptr<ConnectionController> connection_controller_;
 	std::shared_ptr<ReadController> read_controller_;
 	std::shared_ptr<WriteController> write_controller_;

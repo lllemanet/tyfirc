@@ -8,7 +8,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/signals2.hpp>
-#include "tyfirc-chatsocket.h"
+#include "tyfirc-chatrw.h"
 #include "tyfirc-msgpack.h"
 
 namespace tyfirc {
@@ -18,7 +18,7 @@ namespace client {
 // This controller responsible for establishing connection and logging in.
 class ConnectionController {
  public:
-	 ConnectionController(std::shared_ptr<ChatSocket> socket) : socket_{socket} {}
+	 ConnectionController(std::shared_ptr<ChatRw> chat_rw) : chat_rw_{chat_rw} {}
 
 	// Trying to establish safe connection to address::port. Returns true if
 	// successfully and false otherwise. Returns false if connection was 
@@ -34,19 +34,19 @@ class ConnectionController {
 	// Connection must be established before call (otherwise false is returned).
 	bool Register(std::string username, std::string password);
  private:
-	 std::shared_ptr<ChatSocket> socket_;	//this object is shared among all controllers
+	std::shared_ptr<ChatRw> chat_rw_;	//this object is shared among all controllers
 };
 
 
 // Used to write messages to chat synchronously.
 class WriteController {
  public:
-	WriteController(std::shared_ptr<ChatSocket> socket) : socket_{ socket } {}
+	WriteController(std::shared_ptr<ChatRw> chat_rw) : chat_rw_{ chat_rw } {}
 
 	// Synchronoulsy writes message to chat if connection is established.
 	bool WriteMsg(std::string msg);
  private:
-	 std::shared_ptr<ChatSocket> socket_;	//this object is shared among all controllers
+	std::shared_ptr<ChatRw> chat_rw_;	//this object is shared among all controllers
 };
 
 
@@ -61,15 +61,14 @@ class ReadController {
 	using OnMsgPackArrive = boost::signals2::signal<void(MessagePack)>;
 
  public:
-	ReadController(std::shared_ptr<ChatSocket> socket)
-		: socket_{socket} {}
+	ReadController(std::shared_ptr<ChatRw> chat_rw) : chat_rw_{ chat_rw } {}
 
 	//Run();
 
 	boost::signals2::connection DoOnMsgPackArrive(const OnMsgPackArrive& handler);
 
  private:
-	std::shared_ptr<ChatSocket> socket_;	//this object is shared among all controllers
+	 std::shared_ptr<ChatRw> chat_rw_;	//this object is shared among all controllers
 };
 
 }	 // namespace client
