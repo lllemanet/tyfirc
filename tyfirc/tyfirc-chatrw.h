@@ -68,13 +68,18 @@ class ChatRw {
 	bool VerifyCertificate(bool preverified,
 			boost::asio::ssl::verify_context& ctx);
 
+	// Helper for Login and Register
+	bool Auth(ScMessageType type, std::string username, std::string password);
+
 	using ssl_socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
-	
+
 	boost::asio::io_service& service_;
 	ssl_socket socket_;
 
 	std::array<boost::signals2::signal<void(ScMessage)>, sc_types_size> read_signals_;
 	boost::signals2::signal<void(std::string)> discard_signal_;
+	// std::string is used since read_until requires dynamic_buffer
+	std::string write_buffer_;	
 
 	bool is_connected_ = false;
 	bool is_logged_in_ = false;

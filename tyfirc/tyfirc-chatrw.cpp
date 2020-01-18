@@ -34,29 +34,67 @@ bool ChatRw::Connect(boost::asio::ip::address_v4 address, unsigned short port){
 	return true;
 }
 
+typedef boost::asio::buffers_iterator<
+	boost::asio::const_buffers_1> iterator;
+class match_char
+{
+public:
+	explicit match_char(char c) : c_(c) {}
+
+	template <typename Iterator>
+	std::pair<Iterator, bool> operator()(
+		Iterator begin, Iterator end) const
+	{
+		Iterator i = begin;
+		while (i != end)
+			if (c_ == *i++)
+				return std::make_pair(i, true);
+		return std::make_pair(i, false);
+	}
+
+private:
+	char c_;
+};
+
+
 bool ChatRw::Login(std::string username, std::string password) {
-	if (!is_connected_)
-		throw ConnectionFailException();
-
-	std::string scmsg = AuthScMessage(ScMessageType::LOGIN, username, password).
-		ToString();
-	//try { 
-	//	/*size_t read_len = */socket_.Write(boost::asio::buffer(scmsg.c_str(),
-	//			scmsg.size() + 1));
-	//	// temp
-	//	char buff[512];
-	//	socket_.AsyncReadSome(boost::asio::buffer(buff, 512), )
-	//}
-
-
-
-	
-	return true;
+	return Auth(ScMessageType::LOGIN, username, password);
 }
 
 bool ChatRw::Register(std::string username, std::string password)
 {
-	return false;
+	return Auth(ScMessageType::REGISTER, username, password);
+}
+
+bool ChatRw::Auth(ScMessageType type, std::string username, std::string password) {
+	if (!is_connected_)
+		throw ConnectionFailException();
+	if (type != ScMessageType::LOGIN && type != ScMessageType::REGISTER)
+		throw std::invalid_argument("Auth type must be LOGIN or REGISTER");
+
+	// Write login scmsg.
+	std::string scmsg = AuthScMessage(type, username, password).
+		ToString();
+	boost::asio::write(socket_, boost::asio::buffer(scmsg.c_str(),
+		scmsg.size() + 1));
+	// Read. Expects LOGIN_SUCCESS. 
+	// TODO! ReadScMessage
+	size_t btransfed = boost::asio::read_until(socket_,
+		boost::asio::dynamic_buffer(write_buffer_), '\0');
+	write_buffer_[btransfed] = '\0';
+	// Get ScMessage
+	ScMessage res_scmsg;
+	try {
+		res_scmsg = ScMessage::FromString(write_buffer_).GetType();
+	}
+	catch (std::invalid_argument) {
+		return false;
+	}
+
+	ScMessageType success_type = 
+			type == ScMessageType::LOGIN ? ScMessageType::LOGIN_SUCCESS :
+			ScMessageType::REGISTER_SUCCESS;
+	return is_logged_in_ = (res_scmsg.GetType() == success_type);
 }
 
 void ChatRw::BindHandler(ScMessageType type, void(*handler)(ScMessage)) {

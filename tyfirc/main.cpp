@@ -90,11 +90,11 @@ int main() {
 	boost::asio::ssl::context ctx{boost::asio::ssl::context::sslv23};
 	ctx.load_verify_file("server.crt");
 
-	client::ChatRw chatRw{ service, ctx };
-	std::cout << chatRw.Connect(
+	client::ChatRw chat_rw{ service, ctx };
+	std::cout << chat_rw.Connect(
 		boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
-		8001) << std::endl; 
-
+		8001) << std::endl;
+	std::cout << "login result:" << chat_rw.Login("username", "12345678") << std::endl;
 	
 	service.run();
 /*

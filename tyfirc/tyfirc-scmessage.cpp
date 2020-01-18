@@ -12,8 +12,8 @@
 
 
 namespace {
-// One-to-one correspond to ScMessageType order.
-std::string sc_types_strings[] = {
+// One-to-one correspond to ScMessageType order
+const char* sc_types_strings[] = {
 			"LOGIN",
 			"LOGIN_SUCCESS",
 			"LOGIN_FAILURE",
@@ -52,7 +52,8 @@ std::string ScMessageTypeToStr(ScMessageType type) {
 ScMessageType ScMessageTypeFromStr(const std::string& msg) {
 	auto start = sc_types_strings;
 	auto end = sc_types_strings + sc_types_size;
-	auto iter = std::find(start, end, msg);
+	const auto iter = std::find_if(start, end,
+		[&msg](const char* cur) { return std::strcmp(msg.c_str(), cur) == 0; });
 
 	int ind = iter - start;
 	return static_cast<ScMessageType>(ind);
@@ -64,6 +65,7 @@ std::string ScMessage::ToString() {
 	for (auto& a : properties_) {
 		res += a.first + ": " + a.second + "\n";
 	}
+	res.erase(res.end() - 1);	// delete last '\n'
 	return res;
 }
 
