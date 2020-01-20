@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include "tyfirc-scmessage.h"
 #include "tyfirc-misc.h"
+#include "tyfirc-msgpack.h"
 
 
 namespace {
@@ -20,15 +21,18 @@ const char* sc_types_strings[] = {
 			"REGISTER",
 			"REGISTER_SUCCESS",
 			"REGISTER_FAILURE",
+			"MESSAGE",
 			"END"
 };
+
+constexpr char separator = (char)31;
 
 // Expects line to be in form '<property>: <value>'. Invalid argument
 // exception is thrown otherwise. 
 void ParseProperty(const std::string& line, std::string& property,
 		std::string& value) {
 	size_t col_ind = line.find(':');	//colon index
-	if (!(line[col_ind + 1] == ' ' && line[col_ind + 2] != '\n')) {
+	if (line[col_ind + 1] != ' ') {
 		throw std::invalid_argument(
 				"Property line must be in form '<property>: <value>'");
 	}
@@ -60,23 +64,23 @@ ScMessageType ScMessageTypeFromStr(const std::string& msg) {
 }
 
 
-std::string ScMessage::ToString() {
-	std::string res = ScMessageTypeToStr(msg_type_) + "\n";
+std::string ScMessage::Serialize() {
+	std::string res = ScMessageTypeToStr(msg_type_) + separator;
 	for (auto& a : properties_) {
-		res += a.first + ": " + a.second + "\n";
+		res += a.first + ": " + a.second + separator;
 	}
-	res.erase(res.end() - 1);	// delete last '\n'
+	res.erase(res.end() - 1);	// delete last separator
 	return res;
 }
 
-ScMessage ScMessage::FromString(const std::string& sc_msg) {
+ScMessage ScMessage::Deserialize(const std::string& sc_msg) {
 	ScMessage res_msg{};
-	std::vector<std::string> lines{internal::Split(sc_msg, '\n')};
+	std::vector<std::string> lines{internal::Split(sc_msg, separator)};
 
 	// Get type.
 	ScMessageType msg_type = ScMessageTypeFromStr(lines[0]);
 	if (msg_type == ScMessageType::END) {
-		throw std::invalid_argument("Invlid message type.");
+		throw std::invalid_argument("Invalid message type.");
 	}
 	res_msg.SetType(msg_type);
 
@@ -94,13 +98,19 @@ ScMessage ScMessage::FromString(const std::string& sc_msg) {
 
 namespace client {
 
-ScMessage AuthScMessage(ScMessageType type, std::string username,
-		std::string password) {
+ScMessage AuthScMessage(ScMessageType type, const std::string& username,
+		const std::string& password) {
 	if (type != ScMessageType::LOGIN && type != ScMessageType::REGISTER)
 		throw std::invalid_argument("Auth type must be LOGIN or REGISTER");
 	ScMessage res{ type };
 	res.SetProperty("username", username);
 	res.SetProperty("password", password);
+	return res;
+}
+
+ScMessage MessageScMessage(const Message& msg) {
+	ScMessage res{ ScMessageType::MESSAGE };
+	res.SetProperty("data", Message::Serialize(msg));
 	return res;
 }
 

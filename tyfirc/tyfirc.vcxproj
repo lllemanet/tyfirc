@@ -130,6 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="tyfirc-chatrw.cpp" />
+    <ClCompile Include="tyfirc-misc.cpp" />
     <ClCompile Include="tyfirc-msgpack.cpp" />
     <ClCompile Include="tyfirc-controllers.cpp" />
     <ClCompile Include="tyfirc-ircclientapp.cpp" />

@@ -4,7 +4,6 @@
 //
 // Declaration of message structs.
 #pragma once
-
 #include <vector>
 #include <string>
 #include <chrono>
@@ -12,15 +11,14 @@
 
 namespace tyfirc {
 
-// Temp
-struct User {
-	std::string username;
-};
-
 struct Message {
-	User user;
+	std::string username;
 	std::string text;
 	std::chrono::system_clock::time_point time;
+
+	static const std::string time_format;
+	static std::string Serialize(const Message&);
+	static Message Deserialize(std::string);
 };
 
 // Collection of message. 

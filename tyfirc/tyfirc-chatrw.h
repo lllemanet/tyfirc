@@ -8,6 +8,7 @@
 #include <vector>
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
+#include "tyfirc-msgpack.h"
 #include "tyfirc-scmessage.h"
 
 
@@ -24,6 +25,13 @@ namespace client {
 //
 // Object can only be moved.
 class ChatRw {
+ private:
+	enum class ConnectionState {
+		NotConnected = 0,
+		Connected = 1,
+		LoggedIn = 2		// connected and logged in
+	};
+
  public:
 	// Ctor requirements same as for ssl_socket (assumes service and ctx outlive 
 	// this object). 
@@ -39,12 +47,18 @@ class ChatRw {
 	// was registered, false otherwise. 
 	// Connection must be established before call (otherwise 
 	// ConnectionFailExceptionis thrown). 
-	// Throw boost::exception::system-error on asio write and read_until failure.
-	bool Login(std::string username, std::string password);
+	// Throw boost::system::system-error on asio write and ReadScMessage failure.
+	bool Login(const std::string& username, const std::string& password);
 
 	// Rules are similar to Login but return true if username-password wasn't
 	// registered and false otherwise. Automaticaly login.
-	bool Register(std::string username, std::string password);
+	bool Register(const std::string& username, const std::string& password);
+
+	// Synchronously writes message if logged in.
+	// There's no guarantee that message will be written. User is acknowledged
+	// about successful read if written messages arrives on read.
+	// boost::system::system_error thrown on error.
+	void WriteMessage(const Message& msg);
 
 	// Bind handler with specified ScMessage type. Handler is invoked just after
 	// message with this type was read from socket.
@@ -60,14 +74,14 @@ class ChatRw {
 	// If any error happens returns(connection lost/not established etc).
 	void Run();
 
-	bool is_connected() { return is_connected_; }
-	bool is_logged_in() { return is_logged_in_; }
+	bool is_connected() { return con_state_ != ConnectionState::NotConnected; }
+	bool is_logged_in() { return con_state_ == ConnectionState::LoggedIn; }
 
 	ChatRw(ChatRw&&) = default;
 	ChatRw& operator=(ChatRw&&) = default;
  private:
 	// Synchronously read message from socket.
-	// If format is not preserved return ScMessage with type END
+	// If format is not preserved return ScMessage with type END.
 	// boost::system::system_error thrown on error.
 	// We assume server use '\0'-terminating symbol to end message.
 	ScMessage ReadScMessage();
@@ -76,8 +90,8 @@ class ChatRw {
 			boost::asio::ssl::verify_context& ctx);
 
 	// Helper for Login and Register
-	bool Auth(ScMessageType type, std::string username, std::string password);
-
+	bool Auth(ScMessageType type, const std::string& username, 
+			const std::string& password);
 
 	using ssl_socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
 
@@ -90,8 +104,9 @@ class ChatRw {
 	// contains current read message
 	std::string write_buffer_;
 
-	bool is_connected_ = false;
-	bool is_logged_in_ = false;
+	// Since there's no way to check if socket is connected in asio we use this
+	// state and change it if socket operations cause errors.
+	ConnectionState con_state_;
 };
 
 }	 // namespace client

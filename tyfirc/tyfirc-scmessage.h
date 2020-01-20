@@ -6,6 +6,7 @@
 #pragma once
 #include <string>
 #include <map>
+#include "tyfirc-msgpack.h"
 
 namespace tyfirc {
 
@@ -18,6 +19,7 @@ enum class ScMessageType {
 	REGISTER,  // message must contain 'username' and 'password' properties
 	REGISTER_SUCCESS,
 	REGISTER_FAILURE,
+	MESSAGE,
 	END  // not message type
 };
 
@@ -28,9 +30,11 @@ ScMessageType ScMessageTypeFromStr(const std::string& msg);
 // Class provides wrapper for server-client message that is similar to
 // http request/response message.
 // 
-// Server-Client message should contain its type on first line (ex. LOGIN, 
+// Since simple chat message can contain newlines so to distinct scmessage
+// blocks we use 31-US (unit separator) ASCII symbol.
+// Server-Client message should contain its type on first block (ex. LOGIN, 
 // REGISTER). Then you can specify any number of property-value pairs each
-// on distinct line in next form:
+// on distinct block in next form:
 // <property>: <value>
 // And finish message with '\0' symbol.
 // Only first colon separate property from value, so you can use colons in your
@@ -51,12 +55,12 @@ class ScMessage {
  public:
 	ScMessage(ScMessageType type = ScMessageType::LOGIN) : msg_type_{type} {}
 
-	virtual std::string ToString();
-	static ScMessage FromString(const std::string& sc_msg);
+	virtual std::string Serialize();
+	static ScMessage Deserialize(const std::string& sc_msg);
 
 	// (Can throw)
-	std::string GetProperty(std::string prop) { return properties_.at(prop); }
-	void SetProperty(std::string property, std::string value) { 
+	std::string GetProperty(const std::string& prop) { return properties_.at(prop); }
+	void SetProperty(const std::string& property, const std::string& value) { 
 		properties_[property] = value;
 	}
 
@@ -73,9 +77,10 @@ namespace client {
 
 // Type must be LOGIN or REGISTER. Otherwise invalid_argument exception is 
 // thrown.
-ScMessage AuthScMessage(ScMessageType type, std::string username,
-	std::string password);
+ScMessage AuthScMessage(ScMessageType type, const std::string& username,
+	const std::string& password);
 
+ScMessage MessageScMessage(const Message& msg);
 
 }  // namespace client
 

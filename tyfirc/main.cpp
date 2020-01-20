@@ -96,6 +96,19 @@ int main() {
 		8001) << std::endl;
 	std::cout << "login result:" << chat_rw.Login("username", "12345678") << std::endl;
 	
+	//chat_rw.WriteMessage("message");
+
+	Message msg;
+	msg.username = "username";
+	msg.time = std::chrono::system_clock::now();
+	msg.text = "text\ntext\n";
+
+	std::cout << Message::Serialize(msg);
+	msg.username = "";
+	std::cout << "2:" << Message::Serialize(msg);
+
+	chat_rw.WriteMessage(msg);
+
 	service.run();
 /*
 	ScMessage msg{ ScMessageType::LOGIN };

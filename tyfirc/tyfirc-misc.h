@@ -4,26 +4,19 @@
 //
 // Miscallenous functions.
 #pragma once
-#include <iostream>
-#include <sstream>
 #include <string>
+#include <chrono>
 #include <vector>
-
-
 
 namespace tyfirc {
 
 namespace internal {
-std::vector<std::string> Split(const std::string& src, char delimeter) {
-	std::vector<std::string> tokens{};
-	std::istringstream token_stream{src};
-	std::string token;
-	while (std::getline(token_stream, token, delimeter)) {
-		tokens.push_back(token);
-	}
-	return tokens;
-}
+std::vector<std::string> Split(const std::string& src, char delimeter);
 
+std::string CurTimeStr(const std::string& format);
+
+std::string TimePointToStr(const std::chrono::system_clock::time_point& point,
+		std::string format);
 }  //namespace internal
 
 }  // namespace tyfirc

@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include "tyfirc-msgpack.h"
+#include "tyfirc-misc.h"
 
 namespace tyfirc {
 
@@ -61,6 +62,23 @@ void MessagePack::Insert(MessagePack new_msgs) {
 			data_ = merged_collection;
 		}
 	}
+}
+
+const std::string Message::time_format = "%d.%m.%Y %H:%M:%S";
+
+std::string Message::Serialize(const Message& msg)
+{
+	std::string res = msg.username.size() != 0 ? 
+			msg.username : "-";
+	res += " " + internal::TimePointToStr(msg.time, Message::time_format);
+	res.erase(res.end() - 1);	// erase \0 symbol from TimePointToStr string
+	res += " " + msg.text;
+	return res;
+}
+
+Message Message::Deserialize(std::string)
+{
+	return Message();
 }
 
 }	//namespace tyfirc

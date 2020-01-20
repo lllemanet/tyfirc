@@ -33,6 +33,9 @@
     <ClCompile Include="tyfirc-chatrw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tyfirc-misc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tyfirc-controllers.h">
