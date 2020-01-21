@@ -64,7 +64,7 @@ ScMessageType ScMessageTypeFromStr(const std::string& msg) {
 }
 
 
-std::string ScMessage::Serialize() {
+std::string ScMessage::Serialize() const{
 	std::string res = ScMessageTypeToStr(msg_type_) + separator;
 	for (auto& a : properties_) {
 		res += a.first + ": " + a.second + separator;
@@ -98,7 +98,7 @@ ScMessage ScMessage::Deserialize(const std::string& sc_msg) {
 
 namespace client {
 
-ScMessage AuthScMessage(ScMessageType type, const std::string& username,
+ScMessage GetAuthScMessage(ScMessageType type, const std::string& username,
 		const std::string& password) {
 	if (type != ScMessageType::LOGIN && type != ScMessageType::REGISTER)
 		throw std::invalid_argument("Auth type must be LOGIN or REGISTER");
@@ -108,9 +108,9 @@ ScMessage AuthScMessage(ScMessageType type, const std::string& username,
 	return res;
 }
 
-ScMessage MessageScMessage(const Message& msg) {
+ScMessage GetMessageScMessage(const Message& msg) {
 	ScMessage res{ ScMessageType::MESSAGE };
-	res.SetProperty("data", Message::Serialize(msg));
+	res.SetProperty("message[0]", Message::Serialize(msg));
 	return res;
 }
 

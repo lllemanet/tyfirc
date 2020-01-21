@@ -3,8 +3,8 @@
 #include <boost/signals2.hpp>
 #include "tyfirc-msgpack.h"
 #include "tyfirc-scmessage.h"
-#include "tyfirc-controllers.h"
 #include "tyfirc-chatrw.h"
+#include "tyfirc-irclientapp.h"
 
 void HelloWorld() {
 	std::cout << "Hello world" << std::endl;
@@ -74,6 +74,15 @@ int main() {
 
 
 
+	client::IrcClientApp app{};
+	app.SetDefaultCtx().Setup();
+	std::cout << "Connect:" << app.Connect(
+			boost::asio::ip::address::from_string("127.0.0.1").to_v4(), 8001) 
+			<< std::endl;
+	std::cout << "Login:" << app.Login("username", "password") << std::endl;
+	app.BindHandlerOnMessage([](const Message& msg) 
+			{std::cout << "MSG:" << msg.text << std::endl; });
+	app.StartRead();
 	/*sock = std::make_shared<ChatSocket>(service, ctx);
 
 
@@ -86,7 +95,8 @@ int main() {
 	//sock->AsyncWrite(boost::asio::buffer("some", 5), &OnWrite);
 	//boost::asio::async_read(*socket_, boost::asio::buffer(buffer, 512), &OnRead);
 	//boost::asio::async_write(*socket_, boost::asio::buffer("some", 5), &OnWrite);
-	boost::asio::io_service service{};
+
+	/*boost::asio::io_service service{};
 	boost::asio::ssl::context ctx{boost::asio::ssl::context::sslv23};
 	ctx.load_verify_file("server.crt");
 
@@ -96,33 +106,17 @@ int main() {
 		8001) << std::endl;
 	std::cout << "login result:" << chat_rw.Login("username", "12345678") << std::endl;
 	
-	//chat_rw.WriteMessage("message");
 
 	Message msg;
 	msg.username = "username";
 	msg.time = std::chrono::system_clock::now();
 	msg.text = "text\ntext\n";
 
-	std::cout << Message::Serialize(msg);
-	msg.username = "";
-	std::cout << "2:" << Message::Serialize(msg);
-
 	chat_rw.WriteMessage(msg);
-	Message ex1 = Message::Deserialize("username\n10.12.2019 15:16:17\ntext");
-	Message ex2 = Message::Deserialize("Not correspond to format");
 
-	service.run();
-/*
-	ScMessage msg{ ScMessageType::LOGIN };
-	msg.SetProperty("username", "name");
-	msg.SetProperty("password", "12345678");
-	std::cout << msg.ToString() << std::endl;
+	chat_rw.BindHandlerOnMessage([](const Message& msg) {std::cout << msg.text << std::endl; });
+	chat_rw.StartRead();*/
 
-	ScMessageType type1 = ScMessageTypeFromStr("LOGIN");
-	std::string stype1 = ScMessageTypeToStr(type1);
 
-	ScMessageType type2 = ScMessageTypeFromStr("djsakj");
-	std::string stype2 = ScMessageTypeToStr(type2);
 
-	ScMessage msg2{ScMessage::FromString("LOGIN\nusername: name\npassword: 12345678")};*/
 }

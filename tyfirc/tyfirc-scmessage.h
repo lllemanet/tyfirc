@@ -55,7 +55,7 @@ class ScMessage {
  public:
 	ScMessage(ScMessageType type = ScMessageType::LOGIN) : msg_type_{type} {}
 
-	virtual std::string Serialize();
+	virtual std::string Serialize() const;
 	static ScMessage Deserialize(const std::string& sc_msg);
 
 	// (Can throw)
@@ -77,10 +77,10 @@ namespace client {
 
 // Type must be LOGIN or REGISTER. Otherwise invalid_argument exception is 
 // thrown.
-ScMessage AuthScMessage(ScMessageType type, const std::string& username,
+ScMessage GetAuthScMessage(ScMessageType type, const std::string& username,
 	const std::string& password);
 
-ScMessage MessageScMessage(const Message& msg);
+ScMessage GetMessageScMessage(const Message& msg);
 
 }  // namespace client
 

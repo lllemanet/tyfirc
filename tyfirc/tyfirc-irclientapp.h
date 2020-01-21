@@ -7,7 +7,6 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include "tyfirc-controllers.h"
 #include "tyfirc-chatrw.h"
 
 namespace tyfirc {
@@ -22,42 +21,73 @@ namespace client {
 class IrcClientApp {
 
 public:
-	IrcClientApp() : service_{ std::make_shared<boost::asio::io_service>() } {}
+	IrcClientApp() : service_{} {}
 
-	// Creates controllers with injecting dependencies.
-	//
 	// SSL ctx_ must be set before Setup call. Otherwise domain_error is
 	// thrown.
-	//
-	// If ctx_ is not appropriate for safe connection, TODO error in 
-	// ChatSocket connect.
-	bool Setup();
+	// Setup chat_rw_ object with appropriate safe context.
+	void Setup();
 
-	IrcClientApp& SetCtx(std::shared_ptr<boost::asio::ssl::context> ctx) {
-		ctx_ = ctx;
+	IrcClientApp& SetCtx(boost::asio::ssl::context ctx) {
+		ctx_ = std::move(ctx);
 		return *this;
 	}
 
 	// Use sslv23 context with specified certificate filename. Throws 
-	IrcClientApp& UseDefaultCtx(std::string crt_filename = "server.crt") {
+	IrcClientApp& SetDefaultCtx(std::string crt_filename = "server.crt") {
 		using boost::asio::ssl::context;
-		ctx_ = std::make_shared<context>(context::sslv23);
+		ctx_ = context(context::sslv23);
 		ctx_->load_verify_file(crt_filename);
 		return *this;
 	}
+
+	// Trying to establish safe connection to address::port. Returns true if
+	// successfully and false otherwise. Returns false if connection was 
+	// established already.
+	bool Connect(boost::asio::ip::address_v4 address, unsigned short port) {
+		return chat_rw_->Connect(address, port);
+	}
+
+	// Trying to login to chat if username-password was registred. Returns result
+	// of login try. Connection must be established before call (otherwise false
+	// is returned).
+	// TODO throws
+	bool Login(std::string username, std::string password);
+
+	// Trying to register to chat. If username is specified, returns false. 
+	// Connection must be established before call (otherwise false is returned).
+	// TODO throws
+	bool Register(std::string username, std::string password);
+
+	// Synchronoulsy writes message to chat if logged in.
+	// Message should NOT contain \x001f or 31th symbol.
+	// TODO throws
+	void WriteMessage(std::string msg);
+
+	boost::signals2::connection BindHandlerOnMessage(void(*h)(const Message&)) {
+		return chat_rw_->BindHandlerOnMessage(h);
+	}
+
+	boost::signals2::connection BindHandlerOnDiscard(void(*h)(const std::string&)){
+		return chat_rw_->BindHandlerOnDiscard(h);
+	}
+
+	// Read ChatRw::StartRead comment for more info.
+	void StartRead() { chat_rw_->StartRead();	}
+
+	// Read ChatRw::StopRead comment for more info.
+	void StopRead() {	chat_rw_->StopRead(); }
 
 	IrcClientApp(IrcClientApp&&) = default;
 	IrcClientApp& operator=(IrcClientApp&&) = default;
 
  private:
-	std::shared_ptr<boost::asio::io_service> service_;
-	std::shared_ptr<boost::asio::ssl::context> ctx_;	// Must be set before Setup.
-	std::shared_ptr<ChatRw> chat_rw_;
-	std::shared_ptr<ConnectionController> connection_controller_;
-	std::shared_ptr<ReadController> read_controller_;
-	std::shared_ptr<WriteController> write_controller_;
-
-	bool is_crt_loaded; // TODO?
+	boost::asio::io_service service_;
+	// boost::none on object creation. Must be set before Setup.
+	boost::optional<boost::asio::ssl::context> ctx_;
+	boost::optional<ChatRw> chat_rw_;	//boost::none on creation
+	
+	std::string username_;
 };
 
 } //namespace client

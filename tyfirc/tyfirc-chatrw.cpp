@@ -11,6 +11,32 @@
 
 namespace tyfirc {
 
+template <typename SyncReadStream>
+ScMessage ReadScMessage(SyncReadStream& socket)
+{
+	// std::string is used since read_until requires dynamic_buffer
+	// contains current read message
+	std::string buffer;
+	boost::asio::read_until(socket,
+		boost::asio::dynamic_buffer(buffer), '\0');
+	ScMessage res;
+	try {
+		res = ScMessage::Deserialize(buffer);
+	}
+	catch (std::invalid_argument) {
+		res.SetType(ScMessageType::END);
+		res.SetProperty("data", buffer);	// copy invalid string into data
+	}
+	return res;
+}
+
+template <typename SyncReadStream>
+void WriteScMessage(SyncReadStream& socket, const ScMessage& scmsg) {
+	std::string scmsg_str = scmsg.Serialize();
+	boost::asio::write(socket, boost::asio::buffer(scmsg_str.c_str(),
+			scmsg_str.size() + 1));
+}
+
 namespace client {
 
 bool ChatRw::Connect(boost::asio::ip::address_v4 address, unsigned short port){
@@ -47,8 +73,8 @@ void ChatRw::WriteMessage(const Message& msg) {
 	if (!is_connected())
 		throw ConnectionFailException();
 
-	std::string	scmsg = MessageScMessage(msg).Serialize();
-	boost::asio::write(socket_, boost::asio::buffer(scmsg.c_str(), scmsg.size()));
+	ScMessage scmsg = GetMessageScMessage(msg);
+	WriteScMessage(socket_, scmsg);
 }
 
 bool ChatRw::Auth(ScMessageType type, const std::string& username,
@@ -59,13 +85,11 @@ bool ChatRw::Auth(ScMessageType type, const std::string& username,
 		throw std::invalid_argument("Auth type must be LOGIN or REGISTER");
 
 	// Write login scmsg and read answer.
-	std::string scmsg = AuthScMessage(type, username, password).
-		Serialize();
 	ScMessage res_scmsg;
 	try {
-		boost::asio::write(socket_, boost::asio::buffer(scmsg.c_str(),
-			scmsg.size() + 1));
-		res_scmsg = ReadScMessage();
+		ScMessage query_msg = GetAuthScMessage(type, username, password);
+		WriteScMessage(socket_, query_msg);
+		res_scmsg = ReadScMessage(socket_);
 	}
 	catch (boost::system::system_error&) {
 		con_state_ = ConnectionState::NotConnected;
@@ -84,31 +108,36 @@ bool ChatRw::Auth(ScMessageType type, const std::string& username,
 	}
 }
 
-void ChatRw::BindHandler(ScMessageType type, void(*handler)(ScMessage)) {
-	short type_ind = static_cast<short>(type);
-	read_signals_[type_ind].connect(handler);
+boost::signals2::connection ChatRw::BindHandlerOnMessage(
+		void(*handler)(const Message&)) {
+	return message_signal_.connect(handler);
 }
 
-void ChatRw::BindHandlerOnDiscard(void(*handler)(std::string)) {
-	discard_signal_.connect(handler);
+boost::signals2::connection ChatRw::BindHandlerOnDiscard(
+		void(*handler)(const std::string&)) {
+	return discard_signal_.connect(handler);
 }
 
-void ChatRw::Run() {
-	//check if logged in	
-}
+void ChatRw::StartRead() {
+	if (!is_logged_in())
+		throw ConnectionFailException("Not logged in");
+	is_read_ = true;
 
-ScMessage ChatRw::ReadScMessage()
-{
-	boost::asio::read_until(socket_,
-			boost::asio::dynamic_buffer(write_buffer_), '\0');
-	ScMessage res;
-	try {
-		res = ScMessage::Deserialize(write_buffer_);
+	while (is_read_) {
+		ScMessage scmsg = ReadScMessage(socket_);
+		Message msg;
+		switch (scmsg.GetType()) {
+		case ScMessageType::MESSAGE:
+			msg = Message::Deserialize(scmsg.GetProperty("message[0]"));
+			message_signal_(msg);
+			break;
+		case ScMessageType::END:
+			discard_signal_(scmsg.GetProperty("data"));
+			break;
+		default:
+			break;
+		}
 	}
-	catch (std::invalid_argument) {
-		res.SetType(ScMessageType::END);
-	}
-	return res;
 }
 
 bool ChatRw::VerifyCertificate(bool preverified, boost::asio::ssl::verify_context & ctx)

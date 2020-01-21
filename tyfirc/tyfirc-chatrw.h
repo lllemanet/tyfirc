@@ -6,7 +6,9 @@
 // writing to server.
 #pragma once
 #include <vector>
+#include <atomic>
 #include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
 #include <boost/signals2.hpp>
 #include "tyfirc-msgpack.h"
 #include "tyfirc-scmessage.h"
@@ -14,13 +16,26 @@
 
 namespace tyfirc {
 
+// Synchronously read message from socket.
+// If format is not preserved return ScMessage with type END.
+// boost::system::system_error thrown on error.
+// We assume server use '\0'-terminating symbol to end message.
+// Socket must be SyncReadStream.
+template <typename SyncReadStream>
+ScMessage ReadScMessage(SyncReadStream&);
+
+// Synchronously writes ScMessage to specified stream.
+// boost::system::system_error thrown on error.
+template <typename SyncReadStream>
+void WriteScMessage(SyncReadStream&, const ScMessage&);
+
 namespace client {
 
 // This class is used to establish connection, log in to server and read/write
 // ScMessages from/to server. It internaly creates and uses ssl socket.
 // After you connected and logged in you can write messages to server. Reading
 // is implemented by binding handlers on each arriving message type and then
-// executing method Run() that blocks thread and direct incoming messages
+// executing method StartRead() that blocks thread and direct incoming messages
 // to bound handlers.
 //
 // Object can only be moved.
@@ -60,19 +75,25 @@ class ChatRw {
 	// boost::system::system_error thrown on error.
 	void WriteMessage(const Message& msg);
 
-	// Bind handler with specified ScMessage type. Handler is invoked just after
+	// Bind handler on new msg arrived. Handler is invoked just after
 	// message with this type was read from socket.
-	void BindHandler(ScMessageType type, void(*handler)(ScMessage));
+	boost::signals2::connection BindHandlerOnMessage(void(*handler)(const Message&));
 
 	// Bind handler if message from socket is invalid.
-	void BindHandlerOnDiscard(void(*handler)(std::string));
+	boost::signals2::connection BindHandlerOnDiscard(
+			void(*handler)(const std::string&));
 
 	// Starts reading from socket and invoke corresponding handlers after 
 	// message from socket is read. If message is invalid discard it and invoke
 	// handler for discarded message.
 	// Blocks thread (So better to execute on distinct thread).
-	// If any error happens returns(connection lost/not established etc).
-	void Run();
+	// Throws on errors with connections (connection lost/not established etc)
+	// and doesn't catch exceptions in handlers.
+	void StartRead();
+
+	// Used to stop reading after StartRead invoked. Stops after last handler
+	// completes.
+	void StopRead() { is_read_ = false; }
 
 	bool is_connected() { return con_state_ != ConnectionState::NotConnected; }
 	bool is_logged_in() { return con_state_ == ConnectionState::LoggedIn; }
@@ -80,12 +101,6 @@ class ChatRw {
 	ChatRw(ChatRw&&) = default;
 	ChatRw& operator=(ChatRw&&) = default;
  private:
-	// Synchronously read message from socket.
-	// If format is not preserved return ScMessage with type END.
-	// boost::system::system_error thrown on error.
-	// We assume server use '\0'-terminating symbol to end message.
-	ScMessage ReadScMessage();
-
 	bool VerifyCertificate(bool preverified,
 			boost::asio::ssl::verify_context& ctx);
 
@@ -94,19 +109,15 @@ class ChatRw {
 			const std::string& password);
 
 	using ssl_socket = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
-
 	boost::asio::io_service& service_;
 	ssl_socket socket_;
-
-	std::array<boost::signals2::signal<void(ScMessage)>, sc_types_size> read_signals_;
-	boost::signals2::signal<void(std::string)> discard_signal_;
-	// std::string is used since read_until requires dynamic_buffer
-	// contains current read message
-	std::string write_buffer_;
-
+	// signals
+	boost::signals2::signal<void(const Message&)> message_signal_;
+	boost::signals2::signal<void(const std::string&)> discard_signal_;
 	// Since there's no way to check if socket is connected in asio we use this
 	// state and change it if socket operations cause errors.
 	ConnectionState con_state_;
+	std::atomic_bool is_read_;	// Switch if started read to finish read.
 };
 
 }	 // namespace client
