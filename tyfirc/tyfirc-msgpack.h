@@ -18,7 +18,11 @@ struct Message {
 
 	static const std::string time_format;
 	static std::string Serialize(const Message&);
-	static Message Deserialize(std::string);
+	// Throw invalid_argument if string is invalid. It must be in form:
+	// <username>\n<date>\n<text>\0
+	// where date should satisfy Message::time_format format.
+	// Text can contain \n symbols
+	static Message Deserialize(const std::string&);
 };
 
 // Collection of message. 

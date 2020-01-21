@@ -32,7 +32,7 @@ constexpr char separator = (char)31;
 void ParseProperty(const std::string& line, std::string& property,
 		std::string& value) {
 	size_t col_ind = line.find(':');	//colon index
-	if (line[col_ind + 1] != ' ') {
+	if (col_ind == std::string::npos || line[col_ind + 1] != ' ') {
 		throw std::invalid_argument(
 				"Property line must be in form '<property>: <value>'");
 	}

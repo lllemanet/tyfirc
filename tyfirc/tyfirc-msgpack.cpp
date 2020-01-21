@@ -6,6 +6,8 @@
 #pragma once
 #include <vector>
 #include <algorithm>
+#include <string>
+#include <chrono>
 #include "tyfirc-msgpack.h"
 #include "tyfirc-misc.h"
 
@@ -70,15 +72,32 @@ std::string Message::Serialize(const Message& msg)
 {
 	std::string res = msg.username.size() != 0 ? 
 			msg.username : "-";
-	res += " " + internal::TimePointToStr(msg.time, Message::time_format);
+	res += "\n" + internal::TimePointToStr(msg.time, Message::time_format);
 	res.erase(res.end() - 1);	// erase \0 symbol from TimePointToStr string
-	res += " " + msg.text;
+	res += "\n" + msg.text;
 	return res;
 }
 
-Message Message::Deserialize(std::string)
-{
-	return Message();
+Message Message::Deserialize(const std::string& src) {
+	Message res;
+
+	size_t sep_inds[3];	// separator indexes
+	sep_inds[0] = src.find('\n');
+	sep_inds[1] = src.find('\n', sep_inds[0] + 1);
+	if (	 sep_inds[0] == std::string::npos
+			|| sep_inds[1] == std::string::npos) {
+		throw std::invalid_argument("Message must be in form"
+				"<username>\\n<date>\\n<text>\\0");
+		}
+	res.username = src.substr(0, sep_inds[0]);
+
+	std::string date_str = src.substr(sep_inds[0] + 1, sep_inds[1] - sep_inds[0]-1);
+	std::chrono::system_clock::time_point tp = 
+			internal::TimePointFromStr(date_str, Message::time_format);
+	res.time = tp;
+
+	res.text = src.substr(sep_inds[1] + 1, src.size() - sep_inds[1]-1);
+	return res;
 }
 
 }	//namespace tyfirc

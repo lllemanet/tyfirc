@@ -8,6 +8,7 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
+#include <type_traits>
 #include "tyfirc-misc.h"
 
 namespace tyfirc {
@@ -43,6 +44,25 @@ std::string TimePointToStr(const std::chrono::system_clock::time_point& point,
 	std::string res(20, '\0');
 	std::strftime(&res[0], res.size(), format.c_str(), &tm);
 	return res;
+}
+
+std::chrono::system_clock::time_point TimePointFromStr(const std::string& str,
+		const std::string& format) {
+	std::istringstream iss{ str };
+	std::tm tm{};
+	if (!(iss >> std::get_time(&tm, format.c_str())))
+		throw std::invalid_argument("get_time");
+	std::chrono::system_clock::time_point timePoint
+			{ std::chrono::seconds(std::mktime(&tm)) };
+	if (iss.eof())
+		return timePoint;
+	double zz;
+	if (iss.peek() != '.' || !(iss >> zz))
+		throw std::invalid_argument("decimal");
+	using hr_clock = std::chrono::high_resolution_clock;
+	std::size_t zeconds = zz * hr_clock::period::den / hr_clock::period::num;
+	return timePoint;	// += hr_clock::duration(zeconds); TODO doesn't work
+	
 }
 
 }  //namespace internal

@@ -17,6 +17,9 @@ std::string CurTimeStr(const std::string& format);
 
 std::string TimePointToStr(const std::chrono::system_clock::time_point& point,
 		std::string format);
+
+std::chrono::system_clock::time_point TimePointFromStr(const std::string& str,
+	const std::string& format);
 }  //namespace internal
 
 }  // namespace tyfirc

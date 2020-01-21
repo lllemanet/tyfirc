@@ -108,6 +108,8 @@ int main() {
 	std::cout << "2:" << Message::Serialize(msg);
 
 	chat_rw.WriteMessage(msg);
+	Message ex1 = Message::Deserialize("username\n10.12.2019 15:16:17\ntext");
+	Message ex2 = Message::Deserialize("Not correspond to format");
 
 	service.run();
 /*
