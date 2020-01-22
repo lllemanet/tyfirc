@@ -45,7 +45,7 @@ void ParseProperty(const std::string& line, std::string& property,
 
 namespace tyfirc {
 
-constexpr size_t sc_message_buff_size = 1024;
+//constexpr size_t sc_message_buff_size = 1024;
 
 std::string ScMessageTypeToStr(ScMessageType type) {
 	return sc_types_strings[static_cast<int>(type)];
@@ -62,7 +62,6 @@ ScMessageType ScMessageTypeFromStr(const std::string& msg) {
 	int ind = iter - start;
 	return static_cast<ScMessageType>(ind);
 }
-
 
 std::string ScMessage::Serialize() const{
 	std::string res = ScMessageTypeToStr(msg_type_) + separator;
@@ -96,8 +95,6 @@ ScMessage ScMessage::Deserialize(const std::string& sc_msg) {
 	return res_msg;
 }
 
-namespace client {
-
 ScMessage GetAuthScMessage(ScMessageType type, const std::string& username,
 		const std::string& password) {
 	if (type != ScMessageType::LOGIN && type != ScMessageType::REGISTER)
@@ -113,7 +110,5 @@ ScMessage GetMessageScMessage(const Message& msg) {
 	res.SetProperty("message[0]", Message::Serialize(msg));
 	return res;
 }
-
-}  // namespace client
 
 }	 // namespace tyfirc

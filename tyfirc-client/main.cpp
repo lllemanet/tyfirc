@@ -21,7 +21,7 @@ boost::asio::ssl::stream<boost::asio::ip::tcp::socket>* socket_;
 std::string GetCurTime(std::string format) {
 
 	std::time_t now = std::chrono::system_clock::to_time_t(
-			std::chrono::system_clock::now());
+		std::chrono::system_clock::now());
 	std::tm tm;
 	::localtime_s(&tm, &now);
 
@@ -51,19 +51,19 @@ int main() {
 	ss >> std::get_time(&t, date_format.c_str());
 	std::string res = ss.str();
 	std::cout << std::put_time(&t, date_format.c_str());
-	
+
 	boost::signals2::signal<void()> sig;
 	sig.connect(&HelloWorld);
-	
+
 	sig();
 
 	using namespace tyfirc;
-	Message m1{"username1", "text1", std::chrono::system_clock::now() };
-	Message m2{"username2", "text2", std::chrono::system_clock::now() + std::chrono::system_clock::duration(2)};
-	Message m3{"username3", "text3", std::chrono::system_clock::now() + std::chrono::system_clock::duration(3)};
-	Message m4{"username4", "text4", std::chrono::system_clock::now() + std::chrono::system_clock::duration(4)};
-	Message m5{"username5", "text5", std::chrono::system_clock::now() + std::chrono::system_clock::duration(5)};
-	Message m6{"username6", "text6", std::chrono::system_clock::now() + std::chrono::system_clock::duration(6)};
+	Message m1{ "username1", "text1", std::chrono::system_clock::now() };
+	Message m2{ "username2", "text2", std::chrono::system_clock::now() + std::chrono::system_clock::duration(2) };
+	Message m3{ "username3", "text3", std::chrono::system_clock::now() + std::chrono::system_clock::duration(3) };
+	Message m4{ "username4", "text4", std::chrono::system_clock::now() + std::chrono::system_clock::duration(4) };
+	Message m5{ "username5", "text5", std::chrono::system_clock::now() + std::chrono::system_clock::duration(5) };
+	Message m6{ "username6", "text6", std::chrono::system_clock::now() + std::chrono::system_clock::duration(6) };
 
 	std::vector<Message> msgs1{ m3, m1, m5 };
 	MessagePack pack1(msgs1);
@@ -77,11 +77,11 @@ int main() {
 	client::IrcClientApp app{};
 	app.SetDefaultCtx().Setup();
 	std::cout << "Connect:" << app.Connect(
-			boost::asio::ip::address::from_string("127.0.0.1").to_v4(), 8001) 
-			<< std::endl;
+		boost::asio::ip::address::from_string("127.0.0.1").to_v4(), 8001)
+		<< std::endl;
 	std::cout << "Login:" << app.Login("username", "password") << std::endl;
-	app.BindHandlerOnMessage([](const Message& msg) 
-			{std::cout << "MSG:" << msg.text << std::endl; });
+	app.BindHandlerOnMessage([](const Message& msg)
+	{ std::cout << "MSG:" << msg.text << std::endl; });
 	app.StartRead();
 	/*sock = std::make_shared<ChatSocket>(service, ctx);
 
@@ -105,7 +105,7 @@ int main() {
 		boost::asio::ip::address::from_string("127.0.0.1").to_v4(),
 		8001) << std::endl;
 	std::cout << "login result:" << chat_rw.Login("username", "12345678") << std::endl;
-	
+
 
 	Message msg;
 	msg.username = "username";

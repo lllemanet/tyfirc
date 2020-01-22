@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28307.960
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tyfirc", "tyfirc\tyfirc.vcxproj", "{AEF72682-8544-44A5-9CA9-9F020363C206}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tyfirc-client", "tyfirc-client\tyfirc-client.vcxproj", "{28F32FCF-D2C6-4B0D-92B8-8289B7EEA4BB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tyfirc-server", "tyfirc-server\tyfirc-server.vcxproj", "{839BC52B-ACD4-45E0-B19E-F016D69B60EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +25,22 @@ Global
 		{AEF72682-8544-44A5-9CA9-9F020363C206}.Release|x64.Build.0 = Release|x64
 		{AEF72682-8544-44A5-9CA9-9F020363C206}.Release|x86.ActiveCfg = Debug|Win32
 		{AEF72682-8544-44A5-9CA9-9F020363C206}.Release|x86.Build.0 = Debug|Win32
+		{28F32FCF-D2C6-4B0D-92B8-8289B7EEA4BB}.Debug|x64.ActiveCfg = Debug|x64
+		{28F32FCF-D2C6-4B0D-92B8-8289B7EEA4BB}.Debug|x64.Build.0 = Debug|x64
+		{28F32FCF-D2C6-4B0D-92B8-8289B7EEA4BB}.Debug|x86.ActiveCfg = Debug|Win32
+		{28F32FCF-D2C6-4B0D-92B8-8289B7EEA4BB}.Debug|x86.Build.0 = Debug|Win32
+		{28F32FCF-D2C6-4B0D-92B8-8289B7EEA4BB}.Release|x64.ActiveCfg = Release|x64
+		{28F32FCF-D2C6-4B0D-92B8-8289B7EEA4BB}.Release|x64.Build.0 = Release|x64
+		{28F32FCF-D2C6-4B0D-92B8-8289B7EEA4BB}.Release|x86.ActiveCfg = Release|Win32
+		{28F32FCF-D2C6-4B0D-92B8-8289B7EEA4BB}.Release|x86.Build.0 = Release|Win32
+		{839BC52B-ACD4-45E0-B19E-F016D69B60EE}.Debug|x64.ActiveCfg = Debug|x64
+		{839BC52B-ACD4-45E0-B19E-F016D69B60EE}.Debug|x64.Build.0 = Debug|x64
+		{839BC52B-ACD4-45E0-B19E-F016D69B60EE}.Debug|x86.ActiveCfg = Debug|Win32
+		{839BC52B-ACD4-45E0-B19E-F016D69B60EE}.Debug|x86.Build.0 = Debug|Win32
+		{839BC52B-ACD4-45E0-B19E-F016D69B60EE}.Release|x64.ActiveCfg = Release|x64
+		{839BC52B-ACD4-45E0-B19E-F016D69B60EE}.Release|x64.Build.0 = Release|x64
+		{839BC52B-ACD4-45E0-B19E-F016D69B60EE}.Release|x86.ActiveCfg = Release|Win32
+		{839BC52B-ACD4-45E0-B19E-F016D69B60EE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

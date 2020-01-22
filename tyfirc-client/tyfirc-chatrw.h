@@ -16,19 +16,6 @@
 
 namespace tyfirc {
 
-// Synchronously read message from socket.
-// If format is not preserved return ScMessage with type END.
-// boost::system::system_error thrown on error.
-// We assume server use '\0'-terminating symbol to end message.
-// Socket must be SyncReadStream.
-template <typename SyncReadStream>
-ScMessage ReadScMessage(SyncReadStream&);
-
-// Synchronously writes ScMessage to specified stream.
-// boost::system::system_error thrown on error.
-template <typename SyncReadStream>
-void WriteScMessage(SyncReadStream&, const ScMessage&);
-
 namespace client {
 
 // This class is used to establish connection, log in to server and read/write

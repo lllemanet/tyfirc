@@ -15,28 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tyfirc-msgpack.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tyfirc-scmessage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tyfirc-misc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="tyfirc-irclientapp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tyfirc-chatrw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tyfirc-msgpack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tyfirc-exceptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tyfirc-scmessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tyfirc-misc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="tyfirc-chatrw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tyfirc-ircclienapp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

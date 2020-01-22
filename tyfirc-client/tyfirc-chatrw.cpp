@@ -6,36 +6,11 @@
 #pragma once
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include "tyfirc-scmessage.h"
 #include "tyfirc-exceptions.h"
 #include "tyfirc-chatrw.h"
 
 namespace tyfirc {
-
-template <typename SyncReadStream>
-ScMessage ReadScMessage(SyncReadStream& socket)
-{
-	// std::string is used since read_until requires dynamic_buffer
-	// contains current read message
-	std::string buffer;
-	boost::asio::read_until(socket,
-		boost::asio::dynamic_buffer(buffer), '\0');
-	ScMessage res;
-	try {
-		res = ScMessage::Deserialize(buffer);
-	}
-	catch (std::invalid_argument) {
-		res.SetType(ScMessageType::END);
-		res.SetProperty("data", buffer);	// copy invalid string into data
-	}
-	return res;
-}
-
-template <typename SyncReadStream>
-void WriteScMessage(SyncReadStream& socket, const ScMessage& scmsg) {
-	std::string scmsg_str = scmsg.Serialize();
-	boost::asio::write(socket, boost::asio::buffer(scmsg_str.c_str(),
-			scmsg_str.size() + 1));
-}
 
 namespace client {
 

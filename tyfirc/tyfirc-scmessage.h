@@ -71,9 +71,39 @@ class ScMessage {
 	std::map<std::string, std::string> properties_;
 };
 
+// Utilities
+// Synchronously read message from socket.
+// If format is not preserved return ScMessage with type END.
+// boost::system::system_error thrown on error.
+// We assume server use '\0'-terminating symbol to end message.
+// Socket must be SyncReadStream.
+template <typename SyncReadStream>
+ScMessage ReadScMessage(SyncReadStream& socket)
+{
+	// std::string is used since read_until requires dynamic_buffer
+	// contains current read message
+	std::string buffer;
+	boost::asio::read_until(socket,
+		boost::asio::dynamic_buffer(buffer), '\0');
+	ScMessage res;
+	try {
+		res = ScMessage::Deserialize(buffer);
+	}
+	catch (std::invalid_argument) {
+		res.SetType(ScMessageType::END);
+		res.SetProperty("data", buffer);	// copy invalid string into data
+	}
+	return res;
+}
 
-namespace client {
-// Utilities.
+// Synchronously writes ScMessage to specified stream.
+// boost::system::system_error thrown on error.
+template <typename SyncReadStream>
+void WriteScMessage(SyncReadStream& socket, const ScMessage& scmsg) {
+	std::string scmsg_str = scmsg.Serialize();
+	boost::asio::write(socket, boost::asio::buffer(scmsg_str.c_str(),
+		scmsg_str.size() + 1));
+}
 
 // Type must be LOGIN or REGISTER. Otherwise invalid_argument exception is 
 // thrown.
@@ -82,10 +112,7 @@ ScMessage GetAuthScMessage(ScMessageType type, const std::string& username,
 
 ScMessage GetMessageScMessage(const Message& msg);
 
-}  // namespace client
-
 // TODO: Abstract object for formatting ScMessage.
-
 
 
 }	 // namespace tyfirc
