@@ -15,7 +15,15 @@ namespace tyfirc {
 
 namespace client {
 
-void IrcClientApp::Setup() {
+IrcClientApp::IrcClientApp() : service_{} {
+	using boost::asio::ssl::context;
+	ctx_ = context(context::sslv23);
+	ctx_->load_verify_file("server.crt");
+	chat_rw_.emplace(service_, *ctx_);
+}
+
+IrcClientApp::IrcClientApp(boost::asio::ssl::context ctx) 
+		: service_{}, ctx_{ std::move(ctx) } {
 	chat_rw_.emplace(service_, *ctx_);
 }
 

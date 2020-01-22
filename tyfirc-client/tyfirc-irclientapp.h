@@ -2,7 +2,7 @@
 // This code is licensed under MIT license (see LICENSE.txt for details)
 
 //
-// Declares class for building controller and model environment.
+// Declares class for building and use client app.
 #pragma once
 
 #include <boost/asio.hpp>
@@ -21,25 +21,10 @@ namespace client {
 class IrcClientApp {
 
 public:
-	IrcClientApp() : service_{} {}
+	// Use default ctx
+	IrcClientApp();
 
-	// SSL ctx_ must be set before Setup call. Otherwise domain_error is
-	// thrown.
-	// Setup chat_rw_ object with appropriate safe context.
-	void Setup();
-
-	IrcClientApp& SetCtx(boost::asio::ssl::context ctx) {
-		ctx_ = std::move(ctx);
-		return *this;
-	}
-
-	// Use sslv23 context with specified certificate filename. Throws 
-	IrcClientApp& SetDefaultCtx(std::string crt_filename = "server.crt") {
-		using boost::asio::ssl::context;
-		ctx_ = context(context::sslv23);
-		ctx_->load_verify_file(crt_filename);
-		return *this;
-	}
+	IrcClientApp(boost::asio::ssl::context ctx);
 
 	// Trying to establish safe connection to address::port. Returns true if
 	// successfully and false otherwise. Returns false if connection was 

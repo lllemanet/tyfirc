@@ -75,7 +75,6 @@ int main() {
 
 
 	client::IrcClientApp app{};
-	app.SetDefaultCtx().Setup();
 	std::cout << "Connect:" << app.Connect(
 		boost::asio::ip::address::from_string("127.0.0.1").to_v4(), 8001)
 		<< std::endl;
