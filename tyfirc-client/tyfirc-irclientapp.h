@@ -35,12 +35,14 @@ public:
 
 	// Trying to login to chat if username-password was registred. Returns result
 	// of login try. Connection must be established before call (otherwise false
-	// is returned).
+	// is returned). 
+	// username&password shouldn't contain whitespaces.
 	// TODO throws
 	bool Login(std::string username, std::string password);
 
 	// Trying to register to chat. If username is specified, returns false. 
 	// Connection must be established before call (otherwise false is returned).
+	// username&password shouldn't contain whitespaces.
 	// TODO throws
 	bool Register(std::string username, std::string password);
 
@@ -68,7 +70,7 @@ public:
 
  private:
 	boost::asio::io_service service_;
-	// boost::none on object creation. Must be set before Setup.
+	// boost::none on object creation.
 	boost::optional<boost::asio::ssl::context> ctx_;
 	boost::optional<ChatRw> chat_rw_;	//boost::none on creation
 	

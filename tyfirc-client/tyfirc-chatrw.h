@@ -91,7 +91,8 @@ class ChatRw {
 	bool VerifyCertificate(bool preverified,
 			boost::asio::ssl::verify_context& ctx);
 
-	// Helper for Login and Register
+	// Helper for Login and Register. We use simple string for password because
+	// it's not serious project.
 	bool Auth(ScMessageType type, const std::string& username, 
 			const std::string& password);
 

@@ -28,6 +28,11 @@ IrcClientApp::IrcClientApp(boost::asio::ssl::context ctx)
 }
 
 bool IrcClientApp::Login(std::string username, std::string password) {
+	if (	 username.find_first_of("\t\n ") != std::string::npos
+			|| password.find_first_of("\t\n ") != std::string::npos)
+		throw std::invalid_argument
+				("username&password shouldn't contain whitespaces.");
+
 	bool res = chat_rw_->Login(username, password);
 	if (res)
 		username_ = username;
@@ -35,7 +40,11 @@ bool IrcClientApp::Login(std::string username, std::string password) {
 }
 
 bool IrcClientApp::Register(std::string username, std::string password) {
-	bool res = chat_rw_->Login(username, password);
+	if (	 username.find_first_of("\t\n ") != std::string::npos
+			|| password.find_first_of("\t\n ") != std::string::npos)
+		throw std::invalid_argument
+				("username&password shouldn't contain whitespaces.");
+	bool res = chat_rw_->Register(username, password);
 	if (res)
 		username_ = username;
 	return res;
