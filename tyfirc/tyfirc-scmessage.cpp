@@ -75,12 +75,11 @@ std::string ScMessage::Serialize() const{
 ScMessage ScMessage::Deserialize(const std::string& sc_msg) {
 	ScMessage res_msg{};
 	std::vector<std::string> lines{internal::Split(sc_msg, separator)};
-
+	lines[lines.size() - 1].pop_back(); // erase '\0' in last lines
 	// Get type.
 	ScMessageType msg_type = ScMessageTypeFromStr(lines[0]);
-	if (msg_type == ScMessageType::END) {
+	if (msg_type == ScMessageType::END)
 		throw std::invalid_argument("Invalid message type.");
-	}
 	res_msg.SetType(msg_type);
 
 	// Get properties.

@@ -11,6 +11,12 @@
 namespace tyfirc {
 
 namespace internal {
+enum class ConnectionState {
+	NotConnected = 0,
+	Connected = 1,
+	LoggedIn = 2		// connected and logged in
+};
+
 std::vector<std::string> Split(const std::string& src, char delimeter);
 
 std::string CurTimeStr(const std::string& format);

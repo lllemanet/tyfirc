@@ -12,6 +12,7 @@
 #include <boost/signals2.hpp>
 #include "tyfirc-msgpack.h"
 #include "tyfirc-scmessage.h"
+#include "tyfirc-misc.h"
 
 
 namespace tyfirc {
@@ -27,13 +28,6 @@ namespace client {
 //
 // Object can only be moved.
 class ChatRw {
- private:
-	enum class ConnectionState {
-		NotConnected = 0,
-		Connected = 1,
-		LoggedIn = 2		// connected and logged in
-	};
-
  public:
 	// Ctor requirements same as for ssl_socket (assumes service and ctx outlive 
 	// this object). 
@@ -82,8 +76,8 @@ class ChatRw {
 	// completes.
 	void StopRead() { is_read_ = false; }
 
-	bool is_connected() { return con_state_ != ConnectionState::NotConnected; }
-	bool is_logged_in() { return con_state_ == ConnectionState::LoggedIn; }
+	bool is_connected() {return con_state_!=internal::ConnectionState::NotConnected;}
+	bool is_logged_in() { return con_state_ == internal::ConnectionState::LoggedIn; }
 
 	ChatRw(ChatRw&&) = default;
 	ChatRw& operator=(ChatRw&&) = default;
@@ -104,7 +98,7 @@ class ChatRw {
 	boost::signals2::signal<void(const std::string&)> discard_signal_;
 	// Since there's no way to check if socket is connected in asio we use this
 	// state and change it if socket operations cause errors.
-	ConnectionState con_state_;
+	internal::ConnectionState con_state_;
 	std::atomic_bool is_read_;	// Switch if started read to finish read.
 };
 

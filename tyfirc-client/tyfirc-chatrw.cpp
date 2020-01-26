@@ -26,7 +26,7 @@ bool ChatRw::Connect(boost::asio::ip::address_v4 address, unsigned short port){
 	try {
 		socket_.lowest_layer().connect(endpoint);
 		socket_.handshake(boost::asio::ssl::stream_base::client);
-		con_state_ = ConnectionState::Connected;
+		con_state_ = internal::ConnectionState::Connected;
 	}
 	catch (std::exception&) {
 		return false;
@@ -67,7 +67,7 @@ bool ChatRw::Auth(ScMessageType type, const std::string& username,
 		res_scmsg = ReadScMessage(socket_);
 	}
 	catch (boost::system::system_error&) {
-		con_state_ = ConnectionState::NotConnected;
+		con_state_ = internal::ConnectionState::NotConnected;
 		throw;
 	}
 
@@ -75,7 +75,7 @@ bool ChatRw::Auth(ScMessageType type, const std::string& username,
 			type == ScMessageType::LOGIN ? ScMessageType::LOGIN_SUCCESS :
 			ScMessageType::REGISTER_SUCCESS;
 	if (res_scmsg.GetType() == success_type) {
-		con_state_ = ConnectionState::LoggedIn;
+		con_state_ = internal::ConnectionState::LoggedIn;
 		return true;
 	}
 	else {
