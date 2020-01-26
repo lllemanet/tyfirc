@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include "tyfirc-ircserverapp.h"
 #include "tyfirc-authmanager.h"
 

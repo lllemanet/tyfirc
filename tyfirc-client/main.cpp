@@ -81,6 +81,10 @@ int main() {
 	std::cout << "Login:" << app.Login("username", "password") << std::endl;
 	app.BindHandlerOnMessage([](const Message& msg)
 	{ std::cout << "MSG:" << msg.text << std::endl; });
+	app.WriteMessage("Hello1");
+	app.WriteMessage("Hello2");
+	app.WriteMessage("Hello3");
+
 	app.StartRead();
 	/*sock = std::make_shared<ChatSocket>(service, ctx);
 

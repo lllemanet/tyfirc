@@ -17,10 +17,10 @@ void Session::Start() {
 	con_state_ = internal::ConnectionState::Connected;
 	socket_.async_handshake(boost::asio::ssl::stream_base::server,
 			[shared_this = shared_from_this()](const boost::system::error_code& e)
-			{ shared_this->HandleHandshake(e); });
+			{ shared_this->ReadLoginScMessage(e); });
 }
 
-void Session::HandleHandshake(const boost::system::error_code & error) {
+void Session::ReadLoginScMessage(const boost::system::error_code & error) {
 	if (!error) {
 		boost::asio::async_read_until(
 				socket_,
@@ -28,40 +28,108 @@ void Session::HandleHandshake(const boost::system::error_code & error) {
 				'\0',
 				[shared_this = shared_from_this()]
 				(const boost::system::error_code& e, size_t len)
-				{ shared_this->HandleScMessageRead(e); });
+				{ shared_this->HandleAuthScMessage(e, len); });
 	}
 	else {
 		// "delete this"
 	}
 }
 
+void Session::HandleAuthScMessage(
+	const boost::system::error_code & error, size_t) {
+	if (error) { 
+		// "delete this"
+	}
 
-void Session::HandleScMessageRead(const boost::system::error_code & error) {
 	ScMessage scmsg = ScMessage::Deserialize(read_buffer_);
+	std::string answer;
+	std::function<void(const boost::system::error_code&, size_t)> handler;
+	bool success = false;
+	if (scmsg.GetType() == ScMessageType::LOGIN) {
+		success = auth_manager_->Login(scmsg.GetProperty("username"),
+			scmsg.GetProperty("password"));
+	}
+	else if (scmsg.GetType() == ScMessageType::REGISTER) {
+		success = auth_manager_->Register(scmsg.GetProperty("username"),
+				scmsg.GetProperty("password"));
+	}
+	else {
+		// Try again.
+		answer = ScMessageTypeToStr(ScMessageType::FORMAT_FAILURE);
+		auto buf = boost::asio::buffer(answer.c_str(), answer.size() + 1);
+		boost::asio::async_write(socket_, buf,
+				[shared_this = shared_from_this()]
+				(const boost::system::error_code& e, size_t len)
+				{ shared_this->ReadLoginScMessage(e); });
+		return;
+	}
+
+	if (success) {
+		answer = ScMessageTypeToStr(
+				scmsg.GetType() == ScMessageType::LOGIN ? ScMessageType::LOGIN_SUCCESS
+												 : ScMessageType::REGISTER_SUCCESS);
+		handler = [shared_this = shared_from_this()]
+			(const boost::system::error_code& e, size_t len) { 
+			shared_this->SetConnectionState(internal::ConnectionState::LoggedIn);
+			shared_this->ReadScMessage(e); 
+		};
+	}
+	else {
+		answer = scmsg.GetType() == ScMessageType::LOGIN ?
+				ScMessageTypeToStr(ScMessageType::LOGIN_FAILURE)
+			: ScMessageTypeToStr(ScMessageType::REGISTER_FAILURE);
+		handler = [shared_this = shared_from_this()]
+							(const boost::system::error_code& e, size_t len)
+							{ shared_this->ReadLoginScMessage(e); };
+	}
+	
+	auto buf = boost::asio::buffer(answer.c_str(), answer.size() + 1);
+	boost::asio::async_write(socket_, buf, handler);
+}
+
+void Session::ReadScMessage(const boost::system::error_code & error) {
+	if (error) {
+		// delete this
+	}
+
+	read_buffer_.clear();
+	boost::asio::async_read_until(socket_, 
+			boost::asio::dynamic_buffer(read_buffer_),
+			'\0',
+			[shared_this = shared_from_this()]
+			(const boost::system::error_code& e, size_t len)
+			{ shared_this->HandleScMessage(e); });
+}
+
+void Session::HandleScMessage(const boost::system::error_code & error) {
+	if (error) {
+		// delete this
+	}
+
+	ScMessage scmsg = ScMessage::Deserialize(read_buffer_);
+	Message msg;
 	switch (scmsg.GetType()) {
-	case ScMessageType::LOGIN:	//HandleLogin method
-		if (auth_manager_->Login(scmsg.GetProperty("username"),
-				scmsg.GetProperty("password"))) {
-			con_state_ = internal::ConnectionState::LoggedIn;
-			std::string answer = ScMessageTypeToStr(ScMessageType::LOGIN_SUCCESS);
-			boost::asio::async_write(socket_, boost::asio::buffer(answer, answer.size()),
-					[](const boost::system::error_code&, size_t) {
-				/*if error*/});
+	case ScMessageType::MESSAGE:
+		try {
+			msg = Message::Deserialize(scmsg.GetProperty("message[0]"));
 		}
-		else {
-			std::string answer = ScMessageTypeToStr(ScMessageType::LOGIN_FAILURE);
-			boost::asio::async_write(socket_, boost::asio::buffer(answer, answer.size()),
-					[](const boost::system::error_code&, size_t) {});
-
-		}
-
+		catch (std::invalid_argument) {}
+		on_message_(msg);
 		break;
 	case ScMessageType::END:
 		break;
 	default:
 		break;
 	}
-	std::cout << read_buffer_ << std::endl;
+
+	read_buffer_.clear();
+	boost::asio::async_read_until(
+		socket_,
+		boost::asio::dynamic_buffer(read_buffer_),
+		'\0',
+		[shared_this = shared_from_this()]
+	(const boost::system::error_code& e, size_t len)
+	{ shared_this->HandleScMessage(e); });
 }
 
 }  // namespace server

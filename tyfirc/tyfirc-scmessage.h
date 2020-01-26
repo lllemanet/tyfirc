@@ -20,6 +20,7 @@ enum class ScMessageType {
 	REGISTER_SUCCESS,
 	REGISTER_FAILURE,
 	MESSAGE,
+	FORMAT_FAILURE,
 	END  // not message type
 };
 

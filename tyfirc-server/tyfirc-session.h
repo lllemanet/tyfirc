@@ -6,7 +6,9 @@
 #pragma once
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/signals2.hpp>
 #include "tyfirc-authmanager.h"
+#include "tyfirc-msgpack.h"
 #include "tyfirc-misc.h"
 
 namespace {
@@ -28,11 +30,23 @@ class Session : public std::enable_shared_from_this<Session> {
 
 	//std::shared_ptr<Session> get_sptr() { return shared_from_this(); }
 
+	// Start of session. Execute async handshake.
 	void Start();
+	
+	// After successful handshake we are reading login info.
+	void ReadLoginScMessage(const boost::system::error_code& error);
+	// Expects read_buffer_ contains string scmessage with auth info.
+	// ReadLoginScMessage again on failure and ReadScMessage on success.
+	void HandleAuthScMessage(const boost::system::error_code& error, size_t);
+	void ReadScMessage(const boost::system::error_code& error);
+	void HandleScMessage(const boost::system::error_code& error);
 
-	void HandleHandshake(const boost::system::error_code& error);
-	void HandleScMessageRead(const boost::system::error_code& error);
+	boost::signals2::connection	BindOnMessage(
+			std::function< void(const Message&)> f) {
+		return on_message_.connect(f);
+	}
 
+	void SetConnectionState(internal::ConnectionState s) { con_state_ = s; }
 	ssl_socket::lowest_layer_type& socket() { return socket_.lowest_layer(); }
  private:
 	// private so object cannot be allocated on stack
@@ -42,7 +56,12 @@ class Session : public std::enable_shared_from_this<Session> {
 	ssl_socket socket_;
 	std::string read_buffer_;
 	std::shared_ptr<IAuthManager> auth_manager_;
-	internal::ConnectionState con_state_ = internal::ConnectionState::NotConnected;
+	// Must be set to LoggedIn ONLY after success message sent to client. 
+	// If state is LoggedIn, session guarantees not to write to socket.
+	internal::ConnectionState con_state_ =internal::ConnectionState::NotConnected;
+	std::string username_;
+
+	boost::signals2::signal<void(const Message&)> on_message_;
 };
 
 }  // namespace server

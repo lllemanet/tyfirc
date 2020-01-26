@@ -22,6 +22,7 @@ const char* sc_types_strings[] = {
 			"REGISTER_SUCCESS",
 			"REGISTER_FAILURE",
 			"MESSAGE",
+			"FORMAT_FAILURE",
 			"END"
 };
 

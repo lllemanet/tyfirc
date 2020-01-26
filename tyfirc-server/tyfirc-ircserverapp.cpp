@@ -9,8 +9,11 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include "tyfirc-ircserverapp.h"
+#include <iostream>
 #include "tyfirc-authmanager.h"
+#include "tyfirc-msgpack.h"
+#include "tyfirc-misc.h"
+#include "tyfirc-ircserverapp.h"
 
 namespace tyfirc {
 
@@ -55,6 +58,9 @@ void IrcServerApp::HandleAccept(std::shared_ptr<Session> new_session,
 		const boost::system::error_code & error) {
 	if (!error) {
 		sessions_.push_back(new_session);
+		new_session->BindOnMessage([this](const Message& msg) {
+			this->AddMessage(msg);
+		});	 // Acknowledge about msg read.
 		new_session->Start();
 	}
 	else {
@@ -63,7 +69,35 @@ void IrcServerApp::HandleAccept(std::shared_ptr<Session> new_session,
 	StartAccept();
 }
 
+void IrcServerApp::Run() {
+	// Start write
+	write_msg_thread_ = std::make_unique<std::thread>(&IrcServerApp::Write, this);
+	service_.run();
+}
+
+void IrcServerApp::Write() {
+	// Wait for first message.
+	while (msg_queue_.begin() == msg_queue_.end()) {
+		std::unique_lock<std::mutex> lk(new_msg_mutex_);
+		new_msg_cv_.wait(lk);
+	}
+	auto cur = msg_queue_.begin();
+	// TODO: Write first message for all sessions
+
+	while (true) {
+		while (internal::next(cur) == msg_queue_.end()) {
+			std::unique_lock<std::mutex> lk(new_msg_mutex_);
+			new_msg_cv_.wait(lk);
+		}
+		cur++;
+	}
+}
+
+void IrcServerApp::AddMessage(const Message & new_msg) {
+	msg_queue_.push_back(new_msg);
+	new_msg_cv_.notify_all();
+}
+
 }  // namespace server
 
 }  // namespace tyfirc
-
