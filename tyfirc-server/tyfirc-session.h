@@ -28,11 +28,8 @@ class Session : public std::enable_shared_from_this<Session> {
 					std::shared_ptr<IAuthManager> auth_manager)
 		: socket_{ service, ctx }, auth_manager_{ auth_manager } {}
 
-	//std::shared_ptr<Session> get_sptr() { return shared_from_this(); }
-
 	// Start of session. Execute async handshake.
 	void Start();
-	
 	// After successful handshake we are reading login info.
 	void ReadLoginScMessage(const boost::system::error_code& error);
 	// Expects read_buffer_ contains string scmessage with auth info.
@@ -41,18 +38,24 @@ class Session : public std::enable_shared_from_this<Session> {
 	void ReadScMessage(const boost::system::error_code& error);
 	void HandleScMessage(const boost::system::error_code& error);
 
+	// Synchronously writes message. Throws boost::system::error_code.
+	void SyncWriteMessage(const Message&);
+
 	boost::signals2::connection	BindOnMessage(
 			std::function< void(const Message&)> f) {
 		return on_message_.connect(f);
 	}
 
 	void SetConnectionState(internal::ConnectionState s) { con_state_ = s; }
+	internal::ConnectionState connection_state() { return con_state_; }
+	bool is_connected() {
+		return con_state_ != internal::ConnectionState::NotConnected;
+	}
+	bool is_logged_in() { return con_state_ == internal::ConnectionState::LoggedIn; }
+	std::string username() { return username_; }
+
 	ssl_socket::lowest_layer_type& socket() { return socket_.lowest_layer(); }
  private:
-	// private so object cannot be allocated on stack
-	/*Session(boost::asio::io_service& service, boost::asio::ssl::context& ctx)
-		 : socket_{ service, ctx } {}*/
-
 	ssl_socket socket_;
 	std::string read_buffer_;
 	std::shared_ptr<IAuthManager> auth_manager_;

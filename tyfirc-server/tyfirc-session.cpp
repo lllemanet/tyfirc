@@ -31,14 +31,16 @@ void Session::ReadLoginScMessage(const boost::system::error_code & error) {
 				{ shared_this->HandleAuthScMessage(e, len); });
 	}
 	else {
-		// "delete this"
+		con_state_ = internal::ConnectionState::NotConnected;
+		return;	// "delete this"
 	}
 }
 
 void Session::HandleAuthScMessage(
 	const boost::system::error_code & error, size_t) {
 	if (error) { 
-		// "delete this"
+		con_state_ = internal::ConnectionState::NotConnected;
+		return;	// "delete this"
 	}
 
 	ScMessage scmsg = ScMessage::Deserialize(read_buffer_);
@@ -65,6 +67,7 @@ void Session::HandleAuthScMessage(
 	}
 
 	if (success) {
+		username_ = scmsg.GetProperty("username");
 		answer = ScMessageTypeToStr(
 				scmsg.GetType() == ScMessageType::LOGIN ? ScMessageType::LOGIN_SUCCESS
 												 : ScMessageType::REGISTER_SUCCESS);
@@ -89,7 +92,8 @@ void Session::HandleAuthScMessage(
 
 void Session::ReadScMessage(const boost::system::error_code & error) {
 	if (error) {
-		// delete this
+		con_state_ = internal::ConnectionState::NotConnected;
+		return;	// "delete this"
 	}
 
 	read_buffer_.clear();
@@ -103,7 +107,8 @@ void Session::ReadScMessage(const boost::system::error_code & error) {
 
 void Session::HandleScMessage(const boost::system::error_code & error) {
 	if (error) {
-		// delete this
+		con_state_ = internal::ConnectionState::NotConnected;
+		return;	// "delete this"
 	}
 
 	ScMessage scmsg = ScMessage::Deserialize(read_buffer_);
@@ -130,6 +135,13 @@ void Session::HandleScMessage(const boost::system::error_code & error) {
 		[shared_this = shared_from_this()]
 	(const boost::system::error_code& e, size_t len)
 	{ shared_this->HandleScMessage(e); });
+}
+
+void Session::SyncWriteMessage(const Message& msg) {
+	// ConnectionFailException?
+	std::string scmsgstr = GetMessageScMessage(msg).Serialize();
+	boost::asio::write(socket_, 
+			boost::asio::buffer(scmsgstr.c_str(), scmsgstr.size() + 1));
 }
 
 }  // namespace server

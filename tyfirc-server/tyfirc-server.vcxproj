@@ -132,12 +132,14 @@
     <ClInclude Include="tyfirc-authmanager.h" />
     <ClInclude Include="tyfirc-ircserverapp.h" />
     <ClInclude Include="tyfirc-session.h" />
+    <ClInclude Include="tyfirc-sessionlist.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="tyfirc-authmanager.cpp" />
     <ClCompile Include="tyfirc-ircserverapp.cpp" />
     <ClCompile Include="tyfirc-session.cpp" />
+    <ClCompile Include="tyfirc-sessionlist.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

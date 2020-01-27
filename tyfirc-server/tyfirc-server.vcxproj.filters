@@ -24,6 +24,9 @@
     <ClInclude Include="tyfirc-authmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tyfirc-sessionlist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tyfirc-ircserverapp.cpp">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tyfirc-authmanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tyfirc-sessionlist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

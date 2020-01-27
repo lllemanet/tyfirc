@@ -5,13 +5,14 @@
 // Defines class methods for building and use server app. Name of file could be 
 // changed.
 #include <vector>
+#include <algorithm>
 #include <boost/optional.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include <iostream>
 #include "tyfirc-authmanager.h"
 #include "tyfirc-msgpack.h"
+#include "tyfirc-sessionlist.h"
 #include "tyfirc-misc.h"
 #include "tyfirc-ircserverapp.h"
 
@@ -57,10 +58,9 @@ void IrcServerApp::StartAccept() {
 void IrcServerApp::HandleAccept(std::shared_ptr<Session> new_session,
 		const boost::system::error_code & error) {
 	if (!error) {
-		sessions_.push_back(new_session);
-		new_session->BindOnMessage([this](const Message& msg) {
-			this->AddMessage(msg);
-		});	 // Acknowledge about msg read.
+		auto on_message_handler = [this](const Message& msg) {
+			this->AddMessage(msg); }; // Acknowledge about msg read.
+		sessions_.AddSession(new_session, on_message_handler);
 		new_session->Start();
 	}
 	else {
@@ -71,25 +71,39 @@ void IrcServerApp::HandleAccept(std::shared_ptr<Session> new_session,
 
 void IrcServerApp::Run() {
 	// Start write
-	write_msg_thread_ = std::make_unique<std::thread>(&IrcServerApp::Write, this);
+	write_msg_thread_ = std::make_unique<std::thread>(&IrcServerApp::StartWrite, this);
 	service_.run();
 }
 
-void IrcServerApp::Write() {
+void IrcServerApp::StartWrite() {
 	// Wait for first message.
 	while (msg_queue_.begin() == msg_queue_.end()) {
 		std::unique_lock<std::mutex> lk(new_msg_mutex_);
 		new_msg_cv_.wait(lk);
 	}
-	auto cur = msg_queue_.begin();
-	// TODO: Write first message for all sessions
+	auto cur_msg = msg_queue_.begin();
 
 	while (true) {
-		while (internal::next(cur) == msg_queue_.end()) {
+		for (auto cur_session = sessions_.begin(); cur_session != sessions_.end();) {
+			if (!cur_session->first->is_connected()) {
+				cur_session = sessions_.CleanSession(cur_session);
+			}
+			else if (cur_session->first->is_logged_in()) {
+				try {
+					cur_session->first->SyncWriteMessage(*cur_msg);
+					cur_session++;
+				}
+				catch (boost::system::error_code& e) {
+					cur_session = sessions_.CleanSession(cur_session);
+				}
+			}
+		}
+
+		while (internal::next(cur_msg) == msg_queue_.end()) {
 			std::unique_lock<std::mutex> lk(new_msg_mutex_);
 			new_msg_cv_.wait(lk);
 		}
-		cur++;
+		cur_msg++;
 	}
 }
 
