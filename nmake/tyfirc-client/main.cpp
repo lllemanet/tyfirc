@@ -1,5 +1,6 @@
 #include <iostream>
 #include <boost/asio.hpp>
+#include <boost/signals2.hpp>
 #include "tyfirc-msgpack.h"
 #include "tyfirc-scmessage.h"
 #include "tyfirc-chatrw.h"
