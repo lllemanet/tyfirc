@@ -30,13 +30,6 @@ class Session : public std::enable_shared_from_this<Session> {
 
 	// Start of session. Execute async handshake.
 	void Start();
-	// After successful handshake we are reading login info.
-	void ReadLoginScMessage(const boost::system::error_code& error);
-	// Expects read_buffer_ contains string scmessage with auth info.
-	// ReadLoginScMessage again on failure and ReadScMessage on success.
-	void HandleAuthScMessage(const boost::system::error_code& error, size_t);
-	void ReadScMessage(const boost::system::error_code& error);
-	void HandleScMessage(const boost::system::error_code& error);
 
 	// Synchronously writes message. Throws boost::system::error_code.
 	void SyncWriteMessage(const Message&);
@@ -56,6 +49,14 @@ class Session : public std::enable_shared_from_this<Session> {
 
 	ssl_socket::lowest_layer_type& socket() { return socket_.lowest_layer(); }
  private:
+	 // After successful handshake we are reading login info.
+	 void ReadLoginScMessage(const boost::system::error_code& error);
+	 // Expects read_buffer_ contains string scmessage with auth info.
+	 // ReadLoginScMessage again on failure and ReadScMessage on success.
+	 void HandleAuthScMessage(const boost::system::error_code& error, size_t);
+	 void ReadScMessage(const boost::system::error_code& error);
+	 void HandleScMessage(const boost::system::error_code& error);
+
 	ssl_socket socket_;
 	std::string read_buffer_;
 	std::shared_ptr<IAuthManager> auth_manager_;

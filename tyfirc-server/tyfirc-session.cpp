@@ -15,20 +15,22 @@ namespace server {
 
 void Session::Start() {
 	con_state_ = internal::ConnectionState::Connected;
+	auto self = shared_from_this();
 	socket_.async_handshake(boost::asio::ssl::stream_base::server,
-			[shared_this = shared_from_this()](const boost::system::error_code& e)
-			{ shared_this->ReadLoginScMessage(e); });
+			[this, self](const boost::system::error_code& e)
+			{ ReadLoginScMessage(e); });
 }
 
 void Session::ReadLoginScMessage(const boost::system::error_code & error) {
 	if (!error) {
+		auto self = shared_from_this();
 		boost::asio::async_read_until(
 				socket_,
 				boost::asio::dynamic_buffer(read_buffer_),
 				'\0',
-				[shared_this = shared_from_this()]
+				[this, self]
 				(const boost::system::error_code& e, size_t len)
-				{ shared_this->HandleAuthScMessage(e, len); });
+				{ HandleAuthScMessage(e, len); });
 	}
 	else {
 		con_state_ = internal::ConnectionState::NotConnected;
@@ -43,6 +45,7 @@ void Session::HandleAuthScMessage(
 		return;	// "delete this"
 	}
 
+	auto self = shared_from_this();
 	ScMessage scmsg = ScMessage::Deserialize(read_buffer_);
 	std::string answer;
 	std::function<void(const boost::system::error_code&, size_t)> handler;
@@ -60,9 +63,9 @@ void Session::HandleAuthScMessage(
 		answer = ScMessageTypeToStr(ScMessageType::FORMAT_FAILURE);
 		auto buf = boost::asio::buffer(answer.c_str(), answer.size() + 1);
 		boost::asio::async_write(socket_, buf,
-				[shared_this = shared_from_this()]
+				[this, self]
 				(const boost::system::error_code& e, size_t len)
-				{ shared_this->ReadLoginScMessage(e); });
+				{ ReadLoginScMessage(e); });
 		return;
 	}
 
@@ -71,19 +74,19 @@ void Session::HandleAuthScMessage(
 		answer = ScMessageTypeToStr(
 				scmsg.GetType() == ScMessageType::LOGIN ? ScMessageType::LOGIN_SUCCESS
 												 : ScMessageType::REGISTER_SUCCESS);
-		handler = [shared_this = shared_from_this()]
+		handler = [this, self]
 			(const boost::system::error_code& e, size_t len) { 
-			shared_this->SetConnectionState(internal::ConnectionState::LoggedIn);
-			shared_this->ReadScMessage(e); 
+			SetConnectionState(internal::ConnectionState::LoggedIn);
+			ReadScMessage(e); 
 		};
 	}
 	else {
 		answer = scmsg.GetType() == ScMessageType::LOGIN ?
 				ScMessageTypeToStr(ScMessageType::LOGIN_FAILURE)
 			: ScMessageTypeToStr(ScMessageType::REGISTER_FAILURE);
-		handler = [shared_this = shared_from_this()]
+		handler = [this, self]
 							(const boost::system::error_code& e, size_t len)
-							{ shared_this->ReadLoginScMessage(e); };
+							{ ReadLoginScMessage(e); };
 	}
 	
 	auto buf = boost::asio::buffer(answer.c_str(), answer.size() + 1);
@@ -97,12 +100,13 @@ void Session::ReadScMessage(const boost::system::error_code & error) {
 	}
 
 	read_buffer_.clear();
+	auto self = shared_from_this();
 	boost::asio::async_read_until(socket_, 
 			boost::asio::dynamic_buffer(read_buffer_),
 			'\0',
-			[shared_this = shared_from_this()]
+			[this, self]
 			(const boost::system::error_code& e, size_t len)
-			{ shared_this->HandleScMessage(e); });
+			{ HandleScMessage(e); });
 }
 
 void Session::HandleScMessage(const boost::system::error_code & error) {
