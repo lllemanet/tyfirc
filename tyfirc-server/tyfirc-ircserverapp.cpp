@@ -23,7 +23,7 @@ namespace server {
 IrcServerApp::IrcServerApp(unsigned short port, 
 													 std::shared_ptr<IAuthManager> auth_manager)
 		: service_{}, 
-			acceptor_{service_, 
+			acceptor_{service_,
 			boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)},
 			auth_manager_{auth_manager} {
 	ctx_ = boost::asio::ssl::context(boost::asio::ssl::context::sslv23);
