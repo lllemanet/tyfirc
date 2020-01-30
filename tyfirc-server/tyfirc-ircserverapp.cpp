@@ -12,7 +12,6 @@
 #include <boost/asio/ssl.hpp>
 #include "tyfirc-authmanager.h"
 #include "tyfirc-msgpack.h"
-#include "tyfirc-sessionlist.h"
 #include "tyfirc-misc.h"
 #include "tyfirc-ircserverapp.h"
 
@@ -47,7 +46,7 @@ IrcServerApp::IrcServerApp(unsigned short port,
 
 void IrcServerApp::StartAccept() {
 	std::shared_ptr<Session> new_session{std::make_shared<Session>(
-			service_, *ctx_, auth_manager_)};
+			service_, *ctx_, chat_room_, auth_manager_)};
 	acceptor_.async_accept(new_session->socket(),
 		[this, new_session](const boost::system::error_code& error) 
 		{ HandleAccept(new_session, error); });
@@ -58,10 +57,9 @@ void IrcServerApp::StartAccept() {
 void IrcServerApp::HandleAccept(std::shared_ptr<Session> new_session,
 		const boost::system::error_code & error) {
 	if (!error) {
-		auto on_message_handler = [this](const Message& msg) {
-			this->AddMessage(msg); }; // Acknowledge about msg read.
-		sessions_.AddSession(new_session, on_message_handler);
-		new_session->Start();
+		Session* tmp = new_session.get();
+		chat_room_.AddSession(std::move(new_session));
+		tmp->Start();
 	}
 	else {
 		// "delete new_session"
@@ -70,46 +68,7 @@ void IrcServerApp::HandleAccept(std::shared_ptr<Session> new_session,
 }
 
 void IrcServerApp::Run() {
-	// Start write
-	write_msg_thread_ = std::make_unique<std::thread>(&IrcServerApp::StartWrite, this);
 	service_.run();
-}
-
-void IrcServerApp::StartWrite() {
-	// Wait for first message.
-	while (msg_queue_.begin() == msg_queue_.end()) {
-		std::unique_lock<std::mutex> lk(new_msg_mutex_);
-		new_msg_cv_.wait(lk);
-	}
-	auto cur_msg = msg_queue_.begin();
-
-	while (true) {
-		for (auto cur_session = sessions_.begin(); cur_session != sessions_.end();) {
-			if (!cur_session->first->is_connected()) {
-				cur_session = sessions_.CleanSession(cur_session);
-			}
-			else if (cur_session->first->is_logged_in()) {
-				try {
-					cur_session->first->SyncWriteMessage(*cur_msg);
-					cur_session++;
-				}
-				catch (boost::system::error_code& e) {
-					cur_session = sessions_.CleanSession(cur_session);
-				}
-			}
-		}
-
-		while (internal::next(cur_msg) == msg_queue_.end()) {
-			std::unique_lock<std::mutex> lk(new_msg_mutex_);
-			new_msg_cv_.wait(lk);
-		}
-		cur_msg++;
-	}
-}
-
-void IrcServerApp::AddMessage(const Message & new_msg) {
-	msg_queue_.push_back(new_msg);
-	new_msg_cv_.notify_all();
 }
 
 }  // namespace server

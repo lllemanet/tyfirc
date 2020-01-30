@@ -24,7 +24,7 @@
     <ClInclude Include="tyfirc-authmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tyfirc-sessionlist.h">
+    <ClInclude Include="tyfirc-chatroom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClCompile Include="tyfirc-authmanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tyfirc-sessionlist.cpp">
+    <ClCompile Include="tyfirc-chatroom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
