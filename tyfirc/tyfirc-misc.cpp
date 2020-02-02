@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <type_traits>
 #include "tyfirc-misc.h"
+#include "db/tyfirc-repository.h"
 
 namespace tyfirc {
 

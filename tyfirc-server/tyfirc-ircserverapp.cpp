@@ -31,9 +31,9 @@ IrcServerApp::IrcServerApp(unsigned short port,
 			| boost::asio::ssl::context::no_sslv2
 			| boost::asio::ssl::context::single_dh_use);
 	ctx_->set_password_callback(boost::bind(&IrcServerApp::GetPassword, this));
-	ctx_->use_certificate_chain_file("server.crt");
-	ctx_->use_private_key_file("server.key", boost::asio::ssl::context::pem);
-	ctx_->use_tmp_dh_file("dh1024.pem");
+	ctx_->use_certificate_chain_file("certificate/server.crt");
+	ctx_->use_private_key_file("certificate/server.key", boost::asio::ssl::context::pem);
+	ctx_->use_tmp_dh_file("certificate/dh1024.pem");
 }
 
 IrcServerApp::IrcServerApp(unsigned short port,

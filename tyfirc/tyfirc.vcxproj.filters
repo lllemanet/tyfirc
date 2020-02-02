@@ -24,6 +24,9 @@
     <ClCompile Include="tyfirc-misc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="db\tyfirc-repository.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tyfirc-msgpack.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tyfirc-misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="db\tyfirc-repository.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

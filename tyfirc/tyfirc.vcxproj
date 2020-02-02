@@ -148,11 +148,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="db\tyfirc-repository.cpp" />
     <ClCompile Include="tyfirc-misc.cpp" />
     <ClCompile Include="tyfirc-msgpack.cpp" />
     <ClCompile Include="tyfirc-scmessage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="db\tyfirc-repository.h" />
     <ClInclude Include="tyfirc-exceptions.h" />
     <ClInclude Include="tyfirc-misc.h" />
     <ClInclude Include="tyfirc-msgpack.h" />
