@@ -81,8 +81,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\SDK\openssl\openssl-1.0.2u\openssl-1.0.2u\inc32;%BOOST_ROOT%</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\MySQL\MySQL Connector C++ 8.0\include;C:\SDK\openssl\openssl-1.0.2u\openssl-1.0.2u\inc32;%BOOST_ROOT%</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>STATIC_CONCPP;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,8 +116,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\SDK\openssl\openssl-1.0.2u\openssl-1.0.2u\inc32;%BOOST_ROOT%</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>C:\SDK\mysql-connector-cpp\mysql-connector-cpp-x86-release\include;C:\SDK\openssl\openssl-1.0.2u\openssl-1.0.2u\inc32;%BOOST_ROOT%</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STATIC_CONCPP;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,7 +149,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="db\tyfirc-repository.cpp" />
     <ClCompile Include="tyfirc-misc.cpp" />
     <ClCompile Include="tyfirc-msgpack.cpp" />
     <ClCompile Include="tyfirc-scmessage.cpp" />

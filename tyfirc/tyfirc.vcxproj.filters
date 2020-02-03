@@ -24,9 +24,6 @@
     <ClCompile Include="tyfirc-misc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="db\tyfirc-repository.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tyfirc-msgpack.h">

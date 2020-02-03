@@ -8,9 +8,9 @@ CREATE TABLE IF NOT EXISTS users (
 	password VARCHAR(255) NOT NULL
 );
 
-CREATE USER 'tyfirc-server'
+CREATE USER 'tyfirc_server' -- tyfirc-server doesn't work when connecting through uri with backtics
 IDENTIFIED WITH mysql_native_password BY 'password';
 
 GRANT INSERT, SELECT, UPDATE, DELETE
 ON tyfirc.*
-TO 'tyfirc-server';
+TO 'tyfirc_server';

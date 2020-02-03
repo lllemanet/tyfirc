@@ -48,6 +48,7 @@ bool FileAuthManager::Register(const std::string& username,
 		if (!is_file_outdated_)
 			is_file_outdated_ = true;
 		auth_info_[username] = password;
+		return true;
 	}
 }
 
